@@ -1,0 +1,232 @@
+# Development toolchain for smart-search.
+#
+# Both versions satisfy the declared ranges (Python >=3.10, Node >=18).
+# CI independently covers Python 3.10/3.12 and Node 18/22/24.
+# macOS packaging also uses this toolchain; npm and the general CI matrix are independent.
+[tools]
+python = "3.13.14"
+node = "24.16.0"
+dotnet = "8.0.422"
+swift = "system" # Use the Apple Swift toolchain from the selected Xcode and macOS SDK.
+"pipx:dmgbuild" = { version = "1.6.7", os = ["macos"] }
+uv = "0.11.23"
+shellcheck = "0.11.0"
+actionlint = "1.7.12"
+
+# Invoke the project interpreter explicitly: shell profiles may prepend a
+# different Python to PATH after mise activates the venv.
+[vars]
+python = "{% if os() == 'windows' %}.venv/Scripts/python.exe{% else %}.venv/bin/python{% endif %}"
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+
+[tasks.install]
+description = "Create the venv and install the package with dev dependencies"
+run = [
+  '"{{vars.python}}" -m ensurepip --upgrade',
+  '"{{vars.python}}" -m pip install --disable-pip-version-check -e ".[dev]"',
+]
+
+[tasks.test]
+description = "Install dev dependencies and run the pytest suite"
+run = [
+  '"{{vars.python}}" -m ensurepip --upgrade',
+  '"{{vars.python}}" -m pip install --disable-pip-version-check -e ".[dev]"',
+  '"{{vars.python}}" -m pytest',
+]
+
+[tasks.cli]
+description = "Run the CLI from this checkout"
+raw_args = true
+run = '"{{vars.python}}" -m smart_search.cli'
+
+[tasks.python]
+description = "Run a Python development script in the project environment"
+raw_args = true
+run = '"{{vars.python}}"'
+
+[tasks.regression]
+description = "Run the source regression suite from this checkout"
+run = '"{{vars.python}}" -m smart_search.cli regression'
+
+[tasks.smoke]
+description = "Run the mock smoke suite"
+run = '"{{vars.python}}" -m smart_search.cli smoke --mock --format json'
+
+[tasks.parity]
+description = "Verify the public and packaged skill trees match"
+run = "npm run check:skill-parity"
+
+[tasks.check]
+description = "Check Python syntax and patch whitespace"
+run = ['"{{vars.python}}" -m compileall -q src tests', "git diff --check"]
+
+[tasks."desktop:macos:install"]
+description = "Install the macOS backend packaging dependencies"
+run = [
+  '"{{vars.python}}" -m ensurepip --upgrade',
+  '"{{vars.python}}" -m pip install --disable-pip-version-check . "pyinstaller==6.22.3"',
+]
+
+[tasks."desktop:macos:build"]
+description = "Build and verify the macOS app and drag-to-install DMG"
+raw_args = true
+run = 'DMGBUILD="$(mise which dmgbuild)" bash desktop/scripts/build-macos.sh --python "{{vars.python}}"'
+
+# security, codesign, xcrun and /usr/bin/openssl are macOS platform tools.
+[tasks."desktop:macos:certificate"]
+description = "Generate the maintainer's macOS certificate once, outside the repository"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/macos_signing.py create'
+
+[tasks."desktop:macos:with-signing"]
+description = "Scope a pinned macOS signing identity to one command and clean up its keychain"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/macos_signing.py run'
+
+[tasks."desktop:macos:signing-test"]
+description = "Test real signing, identity continuity, rejection and temporary-keychain cleanup"
+run = '"{{vars.python}}" -m pytest -q tests/test_macos_signing.py'
+
+[tasks."desktop:macos:ci"]
+description = "Build the macOS package and verify native updates within one signing session"
+raw_args = true
+run = 'bash desktop/scripts/ci-macos.sh'
+
+[tasks."desktop:macos:background"]
+description = "Render the DMG background at standard and Retina resolutions"
+run = "bash desktop/scripts/render-dmg-background.sh"
+
+[tasks."desktop:macos:universal"]
+description = "Combine matching arm64 and Intel apps into a verified universal DMG"
+raw_args = true
+run = 'DMGBUILD="$(mise which dmgbuild)" bash desktop/scripts/build-macos-universal.sh --python "{{vars.python}}"'
+
+[tasks."desktop:macos:updates-check"]
+description = "Exercise Sparkle delta updates, full fallback and signature rejection"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/test_sparkle_updates.py'
+
+[tasks."desktop:release:notes"]
+description = "Add system-specific download tables to release notes after assets are verified"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/release_notes.py'
+
+[tasks."desktop:release:baseline"]
+description = "Fetch and verify the previous native update package"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/update_artifacts.py baseline'
+
+[tasks."desktop:release:validate"]
+description = "Validate all native update references and generate checksums"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/update_artifacts.py validate'
+
+[tasks."desktop:packaging:test"]
+description = "Check packaging compatibility, release validation and download notes"
+run = '"{{vars.python}}" -m pytest -q tests/test_native_update_artifacts.py tests/test_release_workflow.py tests/test_macos_universal.py tests/test_desktop_release_notes.py tests/test_macos_signing.py tests/test_macos_ci_runner.py'
+
+[tasks."desktop:macos:compile"]
+description = "Compile the native macOS interface without launching the app"
+run = "bash desktop/scripts/compile-macos.sh"
+
+[tasks."desktop:icons"]
+description = "Generate Windows, Web and fallback macOS icons from the exported PNG"
+run = 'uv run --no-project --python "{{vars.python}}" --script desktop/scripts/build_icons.py'
+
+[tasks."desktop:macos:icon"]
+description = "Compile the Icon Composer source into native macOS icon resources"
+raw_args = true
+run = "bash desktop/scripts/compile-macos-icon.sh"
+
+[tasks."desktop:macos:verify"]
+description = "Verify a packaged DMG, its app signature and native architecture"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/verify_macos_dmg.py'
+
+[tasks."desktop:macos:backend-check"]
+description = "Exercise release-mode Swift IPC against an independently packaged CLI"
+raw_args = true
+run = "bash desktop/scripts/check-macos-backend.sh"
+
+[tasks."desktop:packaging:lint"]
+description = "Check the desktop workflow and macOS packaging scripts"
+run = [
+  "shellcheck desktop/scripts/build-macos.sh desktop/scripts/build-macos-universal.sh desktop/scripts/package-macos.sh desktop/scripts/package-sparkle.sh desktop/scripts/compile-macos.sh desktop/scripts/compile-macos-icon.sh desktop/scripts/render-dmg-background.sh desktop/scripts/check-macos-backend.sh desktop/scripts/check-macos-cli.sh desktop/scripts/ci-macos.sh",
+  "actionlint .github/workflows/desktop-build.yml",
+  "git diff --check",
+]
+
+[tasks."desktop:windows:compile"]
+description = "Compile the native Windows interface on Windows"
+raw_args = true
+run = 'dotnet build desktop/windows/SmartSearch.Desktop.csproj --configuration Release -p:Platform=x64 -p:RuntimeIdentifier=win-x64'
+
+[tasks."desktop:windows:publish"]
+description = "Publish the Windows interface for a selected runtime and output directory"
+raw_args = true
+run = 'dotnet publish desktop/windows/SmartSearch.Desktop.csproj --configuration Release --self-contained true'
+
+[tasks."desktop:windows:install"]
+description = "Install Windows backend packaging dependencies"
+run = [
+  '"{{vars.python}}" -m ensurepip --upgrade',
+  '"{{vars.python}}" -m pip install --disable-pip-version-check . "pyinstaller==6.22.3"',
+]
+
+[tasks."desktop:windows:build"]
+description = "Build the Windows app and an installer when Inno Setup is available"
+raw_args = true
+run = 'powershell -NoProfile -ExecutionPolicy Bypass -File desktop/scripts/Build-Windows.ps1 -PythonPath "{{vars.python}}"'
+
+[tasks."desktop:cli:build"]
+description = "Build and verify the standalone CLI in an isolated artifact directory"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/build_backend.py --smoke'
+
+[tasks."desktop:cli:package"]
+description = "Package a standalone CLI archive, separate from the native App"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/package_cli.py'
+
+[tasks."desktop:macos:cli-check"]
+description = "Verify native CLI management against isolated npm installations"
+run = "bash desktop/scripts/check-macos-cli.sh"
+
+[tasks.node]
+description = "Run Node with the project toolchain"
+raw_args = true
+run = 'node'
+
+[tasks."npm:binary:package"]
+description = "Assemble the self-contained npm platform package"
+raw_args = true
+run = '"{{vars.python}}" desktop/scripts/package_npm_cli.py'
+
+[tasks."npm:binary:smoke"]
+description = "Install packed npm artifacts and verify runtime isolation"
+raw_args = true
+run = 'node npm/scripts/smoke-packed-install.js'
+
+[tasks."npm:test"]
+description = "Test the npm binary launcher"
+run = 'npm test'
+
+[tasks."desktop:windows:cli-check"]
+description = "Check Windows npm management in an isolated fixture"
+raw_args = true
+run = 'dotnet run --project desktop/tests/CLIManagementCheck --configuration Release --'
+
+[tasks."npm:workflow:lint"]
+description = "Validate npm build and release workflows"
+run = 'actionlint .github/workflows/npm-binaries.yml .github/workflows/publish-npm.yml .github/workflows/ci.yml'
+
+[tasks."npm:binary:install"]
+description = "Install dependencies for the self-contained npm CLI build"
+run = '"{{vars.python}}" -m pip install --disable-pip-version-check . "pyinstaller==6.22.3"'
+
+[tasks."npm:pack"]
+description = "Pack npm release artifacts"
+raw_args = true
+run = 'npm pack'

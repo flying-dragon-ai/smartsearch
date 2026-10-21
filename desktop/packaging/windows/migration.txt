@@ -1,0 +1,7 @@
+Smart Search
+
+首次从 0.1.23 或更早版本迁移：请先退出旧 App，在 Windows“已安装的应用”中按安装位置辨认并卸载旧版，再安装此版本。旧版默认位于 %LOCALAPPDATA%\Programs\Smart Search。
+共享配置、结果、独立 CLI 和 Agent Skills 会保留。新版本使用 Velopack 按用户安装；后续更新可在 App 内完成。
+
+First migration from version 0.1.23 or earlier: quit the old App, identify and uninstall its installation in Windows Settings, then install this version. The old default location is %LOCALAPPDATA%\Programs\Smart Search.
+Shared configuration, results, independent CLI and Agent Skills are preserved. This version uses a per-user Velopack installation and supports subsequent in-app updates.

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Clawd model sheet</title>
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/500.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/jetbrains-mono/400.css">
+<style>
+  html, body { margin: 0; background: #F4EFE6; overflow: hidden; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+import { drawClawd, drawPixart, MAGNIFIER, BIG_EYE, ICONS, PAL } from '../shared/clawd.js';
+import { loadFonts } from '../shared/motion.js';
+
+const ctx = document.getElementById('c').getContext('2d');
+const PX = 11;
+const POSES = [
+  ['默认', {}],
+  ['左看', { eyes: 'l' }],
+  ['右看', { eyes: 'r' }],
+  ['眨眼', { eyes: 'blink' }],
+  ['开心', { eyes: 'happy', arms: 'up' }],
+  ['惊讶', { eyes: 'wide' }, 'bang'],
+  ['用力', { eyes: 'squint', arms: 'out' }, 'sweat'],
+  ['挥手', { eyes: 'happy', arms: 'wave' }],
+  ['走路 A', { legs: 'walkA', eyes: 'r' }],
+  ['走路 B', { legs: 'walkB', eyes: 'r' }],
+  ['放大镜', { arms: 'hold' }, 'lens'],
+  ['获得道具', { eyes: 'happy', arms: 'up' }, 'item'],
+  ['压扁', { sq: 0.3, legs: 'tuck', eyes: 'shut' }],
+  ['拉长', { sq: -0.3, eyes: 'wide' }],
+  ['贴纸描边', { outline: '#FFFFFF', eyes: 'happy', arms: 'wave' }],
+  ['疑问', { eyes: 'u' }, 'question'],
+];
+
+window.render = function () {
+  ctx.fillStyle = '#F4EFE6';
+  ctx.fillRect(0, 0, 1920, 1080);
+  ctx.fillStyle = '#2A2622';
+  ctx.font = '500 34px "Noto Sans SC"';
+  ctx.fillText('Clawd 角色设定 · 18×10 像素（由 Claude Code 终端 logo 展开）', 80, 92);
+  ctx.font = '400 20px "JetBrains Mono"';
+  ctx.fillStyle = '#8A8070';
+  ctx.fillText('body #D97757 · shade #B85F40 · eye #2A2622 · lens #CFE3FA', 80, 130);
+  POSES.forEach(([label, pose, prop], i) => {
+    const col = i % 8, row = Math.floor(i / 8);
+    const cx = 170 + col * 225, base = 470 + row * 420;
+    ctx.fillStyle = 'rgba(42,38,34,.06)';
+    ctx.fillRect(cx - 105, base - 250, 210, 330);
+    const o = { x: cx, y: base, px: PX, ...pose };
+    if (pose.outline) { ctx.fillStyle = '#9DB7E8'; ctx.fillRect(cx - 105, base - 250, 210, 330); }
+    drawClawd(ctx, o);
+    const gx = cx - 9 * PX, gy = base - 10 * PX;
+    if (prop === 'lens') { drawPixart(ctx, MAGNIFIER, gx + 9 * PX, gy - 1 * PX, PX); drawPixart(ctx, BIG_EYE, gx + 12 * PX, gy + 1 * PX, PX); }
+    if (prop === 'item') { drawPixart(ctx, MAGNIFIER, gx + 4 * PX, gy - 12 * PX, PX); drawPixart(ctx, ICONS.spark, gx - 1 * PX, gy - 11 * PX, PX); drawPixart(ctx, ICONS.spark, gx + 15 * PX, gy - 13 * PX, PX); }
+    if (prop === 'bang') drawPixart(ctx, ICONS.bang, gx + 15 * PX, gy - 10 * PX, PX * 0.8);
+    if (prop === 'question') drawPixart(ctx, ICONS.question, gx + 14 * PX, gy - 11 * PX, PX * 0.8);
+    if (prop === 'sweat') drawPixart(ctx, ICONS.sweat, gx + 15 * PX, gy - 3 * PX, PX * 0.8);
+    ctx.fillStyle = '#2A2622';
+    ctx.font = '500 24px "Noto Sans SC"';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, cx, base + 60);
+    ctx.textAlign = 'left';
+  });
+};
+const LABELS = POSES.map(p => p[0]).join('') + 'Clawd 角色设定 · 18×10 像素（由 Claude Code 终端 logo 展开）';
+loadFonts([['500 34px "Noto Sans SC"', LABELS], ['400 20px "JetBrains Mono"', 'body #0123456789ABCDEF·']]).then(() => { window.render(0); window.ready = true; });
+</script>
+</body>
+</html>

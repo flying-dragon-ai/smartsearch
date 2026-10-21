@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Plan B · Pixel quest</title>
+<link rel="stylesheet" href="/node_modules/@fontsource/fusion-pixel-12px-proportional-sc/index.css">
+<style>
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  canvas { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; }
+</style>
+</head>
+<body>
+<canvas id="screen" width="1920" height="1080"></canvas>
+<script type="module">
+import { drawClawd, drawPixart, MAGNIFIER, ICONS, PAL } from '../../shared/clawd.js';
+import { prog, hop, rnd, loadFonts } from '../../shared/motion.js';
+
+// 240x135 logical pixels, scaled x8 with nearest neighbour. Every colour comes from C.
+const W = 240, H = 135, S = 8;
+const FONT = '12px "Fusion Pixel 12px Proportional SC"';
+const C = {
+  sky0: '#9BD8F4', sky1: '#C4EBF8', sky2: '#E6F7FB', cloud: '#FFFFFF', cloudS: '#D8EEF5',
+  hill0: '#86C98F', hill1: '#5FAE6E', grass: '#4C9A55', grassL: '#7CC765', dirt: '#B98D5A', dirtD: '#946B40', pebble: '#D9B98A',
+  stone: '#9AA1AD', stoneD: '#6E7584', stoneL: '#C3C8D1', wood: '#8A5A3B', woodD: '#5E3B26', lock: '#F2C14E', lockD: '#B98A1E',
+  plank: '#D8B47A', ink: '#2A2622', red: '#D9483B', box: '#1F2440', boxL: '#3A4170', white: '#FFFFFF', ray: '#FFF3B0', shadow: '#3E7F46',
+  fog: '#B8B8B8', fogD: '#8E8E8E',
+};
+const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
+
+const screen = document.getElementById('screen');
+const out = screen.getContext('2d');
+out.imageSmoothingEnabled = false;
+const lc = document.createElement('canvas'); lc.width = W; lc.height = H;
+const uc = document.createElement('canvas'); uc.width = W; uc.height = H;
+const world = lc.getContext('2d'), ui = uc.getContext('2d');
+let g = world;   // current pixel target: the world (zoomable) or the UI (always x8)
+
+const px = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(Math.round(x), Math.round(y), w, h); };
+
+// Text drawn once into its own canvas, thresholded so no anti-aliased pixel survives.
+const textCache = new Map();
+function textSprite(str, col) {
+  const key = str + col;
+  if (textCache.has(key)) return textCache.get(key);
+  const c = document.createElement('canvas');
+  const cx = c.getContext('2d');
+  cx.font = FONT;
+  c.width = Math.ceil(cx.measureText(str).width) + 2; c.height = 16;
+  cx.font = FONT; cx.textBaseline = 'alphabetic'; cx.fillStyle = col;
+  cx.fillText(str, 0, 12);
+  const im = cx.getImageData(0, 0, c.width, c.height);
+  for (let i = 3; i < im.data.length; i += 4) im.data[i] = im.data[i] > 110 ? 255 : 0;
+  cx.putImageData(im, 0, 0);
+  textCache.set(key, c);
+  return c;
+}
+const text = (str, x, y, col, n = Infinity) => { if (n <= 0) return; g.drawImage(textSprite([...str].slice(0, n).join(''), col), Math.round(x), Math.round(y)); };
+
+function sky() {
+  const bands = [[0, C.sky0, C.sky1], [40, C.sky1, C.sky2]];
+  for (let y = 0; y < 80; y++) {
+    const [y0, a, b] = y < 40 ? bands[0] : bands[1];
+    const k = (y - y0) / 40 * 16;
+    for (let x = 0; x < W; x++) { g.fillStyle = BAYER[y & 3][x & 3] < k ? b : a; g.fillRect(x, y, 1, 1); }
+  }
+}
+function cloud(x, y) {
+  const rows = ['...wwww....', '.wwwwwwww..', 'wwwwwwwwwww', '.sssssssss.'];
+  drawPixart(g, { rows, pal: { w: C.cloud, s: C.cloudS } }, x, y);
+}
+function hills() {
+  for (let x = 0; x < W; x++) {
+    const h0 = Math.round(62 + 7 * Math.sin(x / 23) + 4 * Math.sin(x / 9 + 1));
+    px(x, h0, 1, 92 - h0, C.hill0);
+    const h1 = Math.round(74 + 5 * Math.sin(x / 15 + 2) + 3 * Math.sin(x / 6));
+    px(x, h1, 1, 92 - h1, C.hill1);
+  }
+}
+function ground() {
+  px(0, 92, W, 43, C.dirt);
+  px(0, 92, W, 3, C.grass);
+  for (let x = 0; x < W; x += 1) if (rnd(x) > 0.72) px(x, 91, 1, 1, C.grassL);
+  for (let i = 0; i < 40; i++) px(Math.floor(rnd(i + 7) * W), 97 + Math.floor(rnd(i + 99) * 36), 2, 1, i % 3 ? C.pebble : C.dirtD);
+}
+function gate(t) {
+  const x0 = 176, top = 38;
+  // pillars and arch
+  for (const xp of [x0, x0 + 44]) {
+    px(xp, top, 14, 54, C.stone);
+    for (let r = 0; r < 9; r++) px(xp + (r % 2 ? 0 : 7), top + r * 6, 1, 6, C.stoneD), px(xp, top + r * 6, 14, 1, C.stoneD);
+    px(xp, top - 4, 14, 4, C.stoneL);
+  }
+  px(x0, top - 10, 58, 8, C.stone); px(x0, top - 10, 58, 1, C.stoneL); px(x0, top - 3, 58, 1, C.stoneD);
+  // locked door
+  px(x0 + 14, top + 4, 30, 50, C.wood);
+  for (let i = 0; i < 5; i++) px(x0 + 14 + i * 6, top + 4, 1, 50, C.woodD);
+  px(x0 + 14, top + 22, 30, 2, C.woodD);
+  // padlock
+  const lx = x0 + 24, ly = top + 26;
+  px(lx + 2, ly - 5, 6, 2, C.lockD); px(lx + 1, ly - 4, 2, 5, C.lockD); px(lx + 7, ly - 4, 2, 5, C.lockD);
+  px(lx, ly, 10, 9, C.lock); px(lx, ly + 8, 10, 1, C.lockD); px(lx + 4, ly + 3, 2, 3, C.ink);
+  // sign: blinks in steps
+  px(x0 + 3, top - 25, 52, 14, C.plank); px(x0 + 3, top - 12, 52, 1, C.dirtD); px(x0 + 27, top - 11, 3, 2, C.woodD);
+  text('暂不可用', x0 + 5, top - 25, Math.floor(t * 3) % 2 ? C.red : C.ink);
+}
+// The old magnifier: cracked, fogged lens lying on the grass.
+const OLD = {
+  rows: ['..kkkk....', '.kffffk...', 'kfxffffk..', 'kffxfffk..', 'kfffxxfk..', 'kffffffk..', '.kffffkh..', '..kkkkhhh.', '.......hhh', '........hh'],
+  pal: { k: C.fogD, f: C.fog, x: C.ink, h: C.woodD },
+};
+function rays(cx, cy, rot, R) {
+  const im = g.getImageData(0, 0, W, H);
+  const [r, gg, b] = [0xFF, 0xF3, 0xB0];
+  for (let y = Math.max(0, cy - R); y < Math.min(H, cy + R); y++) for (let x = Math.max(0, cx - R); x < Math.min(W, cx + R); x++) {
+    const dx = x - cx, dy = y - cy, d = Math.hypot(dx, dy);
+    if (d > R || d < 6) continue;
+    const a = Math.atan2(dy, dx) + rot;
+    if (Math.floor(a / (Math.PI / 8) + 16) % 2) continue;
+    if (d > R * 0.7 && BAYER[y & 3][x & 3] < (d - R * 0.7) / (R * 0.3) * 16) continue;
+    const i = (y * W + x) * 4; im.data[i] = r; im.data[i + 1] = gg; im.data[i + 2] = b;
+  }
+  g.putImageData(im, 0, 0);
+}
+function textbox(t, open, chars) {
+  if (open <= 0) return;
+  const x0 = 10, y0 = 99, w = 220, hFull = 32;
+  const h = Math.max(2, Math.round(hFull * open));
+  const yy = y0 + Math.round((hFull - h) / 2);
+  px(x0 - 1, yy - 1, w + 2, h + 2, C.white); px(x0, yy, w, h, C.box); px(x0 + 1, yy + 1, w - 2, 1, C.boxL);
+  if (open < 1) return;
+  const l1 = '获得道具：Smart Search 放大镜！', l2 = '能联网搜索、读原网页，带回出处。';
+  const n1 = [...l1].length;
+  text(l1, x0 + 6, y0 + 3, C.lock, chars);
+  text(l2, x0 + 6, y0 + 17, C.white, chars - n1);
+  if (chars > n1 + [...l2].length + 3 && Math.floor(t * 3) % 2) { px(x0 + w - 10, y0 + 26, 5, 1, C.white); px(x0 + w - 9, y0 + 27, 3, 1, C.white); px(x0 + w - 8, y0 + 28, 1, 1, C.white); }
+}
+function hud(sources) {
+  drawPixart(g, { rows: ['.yy.', 'yooy', 'yooy', '.yy.'], pal: { y: C.lock, o: C.lockD } }, 6, 6);
+  text(`出处 ×${sources}`, 13, 1, C.white);
+  text('1-1', 220, 1, C.white);
+}
+
+window.render = function (T) {
+  const t = Math.floor(T * 12) / 12;              // sprites and effects step at 12 fps
+  sky();
+  cloud(20 + Math.floor(T * 2) % 260 - 20, 14); cloud(120 + Math.floor(T * 1.4) % 300 - 60, 26); cloud(200, 8);
+  hills(); ground(); gate(t);
+
+  const cx = 104, feet = 92;
+  // Beam and the item descending.
+  const ITEM_IN = 0.7, CATCH = 1.75;
+  const beam = prog(t, ITEM_IN - 0.3, ITEM_IN);
+  if (t < CATCH && beam > 0) for (let y = 0; y < feet; y++) if (BAYER[y & 3][cx & 3] < 10) px(cx - 6 + (y % 2), y, 12, 1, 'rgba(255,243,176,.55)');
+  const HELD = feet - 23;   // item rests right above the raised arms
+  const itemY = t < CATCH ? Math.round(-12 + (HELD + 12) * prog(t, ITEM_IN, CATCH - 0.25)) : HELD;
+
+  if (t >= CATCH) rays(cx - 1, HELD + 4, t * 2.1, 44);
+
+  // Clawd: sad over the old magnifier → looks up → hop → item-get pose.
+  drawPixart(g, OLD, cx - 32, feet - 9);
+  let pose = { eyes: 'd', arms: 'down', legs: 'stand' }, y = feet, sq = 0;
+  if (t > 0.95 && t < 1.45) pose.eyes = 'u';
+  if (t >= 1.45 && t < CATCH) { const k = prog(t, 1.45, CATCH); y = feet - Math.round(10 * hop(k)); pose = { eyes: 'wide', arms: 'up', legs: 'tuck' }; sq = k < 0.15 ? 0.2 : -0.1; }
+  if (t >= CATCH) { pose = { eyes: 'happy', arms: 'up', legs: 'stand' }; if (t < CATCH + 0.17) sq = 0.2; }
+  // ground shadow
+  px(cx - 7, feet, 14, 1, C.shadow);
+  drawClawd(g, { x: cx, y, px: 1, sq, ...pose });
+  if (t < 1.4) drawPixart(g, ICONS.sweat, cx + 8, y - 13);
+
+  const holdY = t >= CATCH ? HELD : itemY;
+  drawPixart(g, MAGNIFIER, cx - 5, holdY);
+  if (t >= CATCH) {
+    const tw = Math.floor(t * 6);
+    for (const [sx, sy, ph] of [[cx - 24, feet - 36, 0], [cx + 14, feet - 40, 1], [cx + 22, feet - 18, 2], [cx - 28, feet - 16, 3]])
+      if ((tw + ph) % 4 !== 0) drawPixart(g, (tw + ph) % 2 ? ICONS.spark : ICONS.sparkW, sx, sy);
+  }
+
+  // UI layer stays at x8 while the world cuts to a x2 close-up on the catch beat.
+  g = ui; ui.clearRect(0, 0, W, H);
+  hud(0);
+  const open = prog(t, CATCH + 0.25, CATCH + 0.5);
+  textbox(t, open, Math.floor((T - CATCH - 0.55) * 24));
+  g = world;
+
+  out.fillStyle = '#000'; out.fillRect(0, 0, W * S, H * S);
+  if (t >= CATCH) out.drawImage(lc, 44, 46, 120, 68, 0, 0, W * S, 68 * S * 2);
+  else out.drawImage(lc, 0, 0, W * S, H * S);
+  out.drawImage(uc, 0, 0, W * S, H * S);
+  // Faint scanlines on the physical pixel grid: retro, without blurring a single pixel.
+  out.fillStyle = 'rgba(0,0,0,0.07)';
+  for (let yy = S - 2; yy < H * S; yy += S) out.fillRect(0, yy, W * S, 2);
+};
+
+loadFonts([[FONT, '获得道具：Smart Search 放大镜！能联网搜索、读原网页，带回出处。暂不可用出处×0123456789-网页迷宫入口']])
+  .then(() => { window.render(0); window.ready = true; });
+</script>
+</body>
+</html>

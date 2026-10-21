@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Plan A · Choppy to silky</title>
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/500.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/700.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/600.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/jetbrains-mono/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/jetbrains-mono/700.css">
+<style>
+  :root {
+    --paper: #ECE5D8; --ink: #2A2622; --muted: #8C8378; --line: #E6DFD3;
+    --clay: #D97757; --ss: #728CE2; --ss-soft: #DCE4FA;
+    --mono: "JetBrains Mono", "Noto Sans SC", monospace;
+    --sans: "Inter", "Noto Sans SC", sans-serif;
+  }
+  html, body { margin: 0; background: var(--paper); overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden;
+    background: radial-gradient(ellipse 120% 90% at 50% 40%, #F1EBDF 0%, var(--paper) 70%); }
+  #world { position: absolute; inset: 0; transform-origin: 0 0; }
+  .win { position: absolute; background: #FFFFFF; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 28px 60px rgba(70, 50, 30, .13), 0 2px 6px rgba(70, 50, 30, .08); }
+  .bar { height: 52px; background: #F7F4EF; border-bottom: 1px solid #EDE7DD; display: flex; align-items: center; padding: 0 22px; gap: 10px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; background: #E2DBD0; }
+  .bar .title { flex: 1; text-align: center; margin-right: 60px; font: 400 18px var(--sans); color: var(--muted); }
+  .term { position: absolute; left: 40px; top: 82px; right: 40px; font: 400 21px/34px var(--mono); color: var(--ink); }
+  .term .row { position: relative; height: 34px; white-space: pre; }
+  .term .p { color: var(--muted); }
+  .term .tool { font-weight: 700; }
+  .term .dim { color: var(--muted); }
+  .term .url { color: #5A6FC4; }
+  .bul { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #2F9E4F; margin: 0 12px 2px 2px; vertical-align: middle; }
+  .bul.wait { background: #B9B0A3; }
+  .elbow { display: inline-block; width: 12px; height: 14px; border-left: 2px solid #B9B0A3; border-bottom: 2px solid #B9B0A3; margin: 0 14px 6px 28px; vertical-align: middle; }
+  .spin { display: inline-block; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #E4DED4; border-top-color: #8C8378; vertical-align: middle; margin-bottom: 4px; box-sizing: border-box; }
+  .caret { display: inline-block; width: 11px; height: 24px; background: var(--muted); vertical-align: middle; margin-left: 4px; }
+  .card { position: absolute; left: 1262px; width: 520px; height: 124px; background: #FFFFFF; border-radius: 16px; border: 1px solid var(--line);
+    box-shadow: 0 14px 30px rgba(70, 50, 30, .09); box-sizing: border-box; transform-origin: 0 50%; }
+  .card .fav { position: absolute; left: 24px; top: 24px; width: 46px; height: 46px; border-radius: 11px; background: #23272F; color: #fff;
+    font: 600 24px/46px var(--sans); text-align: center; }
+  .card .t { position: absolute; left: 88px; top: 20px; font: 600 25px var(--sans); color: var(--ink); }
+  .card .u { position: absolute; left: 88px; top: 64px; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font: 400 17px var(--mono); color: #6B6358; background: #F4EFE7; border-radius: 8px; padding: 4px 10px; }
+  .card .hl { position: absolute; left: 88px; top: 99px; height: 3px; background: var(--ss); border-radius: 2px; width: 0; }
+  .card .cite { position: absolute; right: 18px; top: 18px; font: 700 18px var(--mono); color: #FFFFFF; background: var(--ss); border-radius: 9px; padding: 3px 9px; transform: scale(0); }
+  #summary { position: absolute; left: 1262px; top: 330px; width: 470px; height: 230px; background: #FBFAF7; border: 2px dashed #CFC6B8; border-radius: 16px; transform-origin: 0 0; }
+  #summary .tag { position: absolute; left: 22px; top: -20px; background: #8C8378; color: #fff; font: 500 22px var(--sans); padding: 4px 14px; border-radius: 8px; }
+  #summary i { position: absolute; left: 26px; height: 14px; border-radius: 7px; background: #D9D2C6; filter: blur(3px); }
+  #clawd, #fx { position: absolute; left: 0; top: 0; }
+  .dust { position: absolute; background: #CFC6B5; }
+  #ring { position: absolute; border-radius: 50%; border: 6px solid var(--ss); opacity: 0; }
+  #cap { position: absolute; left: 50%; bottom: 64px; padding: 16px 34px; border-radius: 999px;
+    background: rgba(255, 255, 255, .74); backdrop-filter: blur(14px); box-shadow: 0 10px 30px rgba(70, 50, 30, .10);
+    font: 500 40px var(--sans); color: var(--ink); white-space: nowrap; }
+  #cap b { font-weight: 700; background: linear-gradient(transparent 58%, var(--ss-soft) 58%); padding: 0 2px; }
+  #fps { position: absolute; right: 56px; top: 44px; font: 700 26px var(--mono); color: var(--muted); letter-spacing: 1px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="world">
+    <div class="win" id="term" style="left:110px; top:250px; width:1090px; height:560px">
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="title">my-app — claude</span></div>
+      <div class="term">
+        <div class="row"><span class="p">&gt;</span> 查 React 当前文档里 useEffect 的清理规则，读相关页面，并给出来源。</div>
+        <div class="row"></div>
+        <div id="before">
+          <div class="row"><span class="bul wait"></span><span class="tool">Web Search</span>("useEffect 清理时机")</div>
+          <div class="row"><span class="elbow"></span><span class="spin" id="sp1"></span></div>
+          <div class="row"><span class="bul wait"></span><span class="tool">Fetch</span>(<span class="url">https://react.dev/reference/react/useEffect</span>)</div>
+          <div class="row"><span class="elbow"></span><span class="spin" id="sp2"></span></div>
+        </div>
+        <div id="after">
+          <div class="row"><span class="bul"></span><span class="tool">Bash</span>(smart-search search "useEffect 清理时机" --format markdown)</div>
+          <div class="row ln"><span class="elbow"></span><span class="dim">…（回答正文 14 行）</span></div>
+          <div class="row ln">       ## 主要来源</div>
+          <div class="row ln">       - [useEffect – React](<span class="url">https://react.dev/reference/react/useEffect</span>)</div>
+          <div class="row ln">       - [Synchronizing with Effects – React](<span class="url">https://react.dev/learn/…</span>)</div>
+          <div class="row ln"><span class="dim">       … 另 1 条</span></div>
+          <div class="row"></div>
+          <div class="row ln"><span class="bul wait"></span><span class="tool">Bash</span>(smart-search fetch "<span class="url">https://react.dev/reference/react/useEffect</span>")<span class="caret" id="cur"></span></div>
+        </div>
+      </div>
+    </div>
+    <div id="summary"><span class="tag">只拿到摘要</span><i style="top:52px;width:390px"></i><i style="top:86px;width:340px"></i><i style="top:120px;width:410px"></i><i style="top:154px;width:250px"></i><i style="top:188px;width:300px"></i></div>
+    <div class="card" id="c0" style="top:300px"><div class="fav">r</div><div class="t">useEffect – React</div><div class="u">react.dev/reference/react/useEffect</div><div class="hl"></div><div class="cite">[1]</div></div>
+    <div class="card" id="c1" style="top:448px"><div class="fav">r</div><div class="t">Synchronizing with Effects</div><div class="u">react.dev/learn/synchronizing-with-effects</div><div class="hl"></div><div class="cite">[2]</div></div>
+    <div class="card" id="c2" style="top:596px"><div class="fav">r</div><div class="t">Lifecycle of Reactive Effects</div><div class="u">react.dev/learn/lifecycle-of-reactive-effects</div><div class="hl"></div><div class="cite">[3]</div></div>
+    <div id="ring"></div>
+    <div id="dust"></div>
+    <div id="clawd"></div>
+    <div id="fx"></div>
+  </div>
+  <div id="fps"></div>
+  <div id="cap"></div>
+</div>
+<script type="module">
+import { clawdSVG, pixartSVG, MAGNIFIER, BIG_EYE, ICONS } from '../../shared/clawd.js';
+import { prog, easeOut, easeInOut, spring, SPRING, hop, lerp, rnd, loadFonts } from '../../shared/motion.js';
+
+const $ = id => document.getElementById(id);
+const stage = $('stage'), world = $('world');
+const fit = () => { stage.style.transform = `scale(${innerWidth / 1920})`; };
+fit(); addEventListener('resize', fit);
+
+const PX = 9;
+const SWITCH = 1.7;                     // built-in search (choppy) → Smart Search (silky)
+const D = SWITCH + 0.35;                // the silky beats are timed from here
+const A = { x: 1040, y: 250 }, B = { x: 1590, y: 300 };
+const T_CROUCH = D + 0.75, T_JUMP = T_CROUCH + 0.16, T_LAND = T_JUMP + 0.54, T_LENS = T_LAND + 0.42;
+
+let lastKey = '';
+function drawClawd({ x, y, sq = 0, lens = 0, icon = null, ...pose }) {
+  const key = JSON.stringify(pose) + lens + icon;
+  if (key !== lastKey) {
+    let extra = lens ? pixartSVG(MAGNIFIER, 9, -1) + pixartSVG(BIG_EYE, 12, 1) : '';
+    if (icon === 'question') extra += pixartSVG(ICONS.question, 15, -11);
+    if (icon === 'sweat') extra += pixartSVG(ICONS.sweat, 16, -1) + pixartSVG(ICONS.question, 15, -11);
+    $('clawd').innerHTML = clawdSVG({ px: PX, pad: 2, glint: true, extra, ...pose });
+    lastKey = key;
+  }
+  const w = 22 * PX, sx = 1 + sq * 0.7, sy = 1 - sq;
+  const el = $('clawd');
+  el.style.transformOrigin = `${w / 2}px ${12 * PX}px`;
+  el.style.transform = `translate(${x - w / 2}px, ${y - 12 * PX}px) scale(${sx}, ${sy})`;
+}
+
+function clawdAt(t) {
+  if (t < SWITCH) {
+    // Impatient hops at 8 fps while the built-in tools spin.
+    const k = (t * 8) % 4;
+    return { x: A.x, y: A.y - (k < 1 ? 14 : 0), sq: k >= 1 && k < 1.5 ? 0.12 : 0, eyes: 'u', arms: k < 1 ? 'up' : 'down', legs: k < 1 ? 'tuck' : 'stand', icon: t > 0.9 ? 'sweat' : 'question' };
+  }
+  if (t < T_CROUCH) {
+    const eyes = t < SWITCH + 0.3 ? 'wide' : t > T_CROUCH - 0.4 && t < T_CROUCH - 0.32 ? 'blink' : 'r';
+    const sq = t < SWITCH + 0.5 ? 0.22 * Math.exp(-(t - SWITCH) * 8) * Math.cos((t - SWITCH) * 26) : 0.03 * Math.sin(t * Math.PI * 4);
+    return { x: A.x, y: A.y, sq, eyes, arms: t < SWITCH + 0.3 ? 'up' : 'down', legs: 'stand' };
+  }
+  if (t < T_JUMP) return { x: A.x, y: A.y, sq: 0.26 * easeOut(prog(t, T_CROUCH, T_JUMP)), eyes: 'r', arms: 'down', legs: 'tuck' };
+  if (t < T_LAND) {
+    const k = prog(t, T_JUMP, T_LAND);
+    return { x: lerp(A.x, B.x, easeInOut(k)), y: lerp(A.y, B.y, k) - 130 * hop(k), sq: -0.16 * Math.sin(Math.PI * Math.min(1, k * 1.4)),
+      eyes: 'wide', arms: 'up', legs: 'tuck' };
+  }
+  const d = t - T_LAND;
+  const sq = 0.32 * Math.exp(-d * 9) * Math.cos(d * 22);
+  if (t < T_LENS) return { x: B.x, y: B.y, sq, eyes: d < 0.3 ? 'shut' : 'd', arms: 'down', legs: 'stand' };
+  return { x: B.x, y: B.y, sq: sq + 0.1 * Math.exp(-(t - T_LENS) * 10) * Math.sin((t - T_LENS) * 30), eyes: 'none', arms: 'hold', legs: 'stand', lens: 1 };
+}
+
+window.render = function (T) {
+  const choppy = T < SWITCH;
+  const t = choppy ? Math.floor(T * 8) / 8 : T;   // the built-in half of the film runs at 8 fps
+  const c = clawdAt(t);
+
+  // Camera: still while stuck; after the switch it follows the jump and punches in on the magnifier beat.
+  const follow = easeInOut(prog(t, T_CROUCH, T_LAND + 0.2));
+  const punch = spring(t - T_LENS + 0.12, 13, 0.62);
+  const z = 1 + 0.18 * follow + 0.55 * punch;
+  const cx = lerp(1000, lerp(c.x, 1500, 0.35), follow) * (1 - punch) + 1520 * punch;
+  const cy = lerp(520, 470, follow) * (1 - punch) + 300 * punch;
+  world.style.transform = `translate(${960 - cx * z}px, ${540 - cy * z}px) scale(${z})`;
+  const grey = choppy ? 0.85 : 0.85 * (1 - easeOut(prog(T, SWITCH, SWITCH + 0.45)));
+  world.style.filter = grey > 0.01 ? `grayscale(${grey}) contrast(${1 - grey * 0.12})` : 'none';
+  $('term').style.filter = punch > 0.02 ? `blur(${4 * punch}px)` : 'none';
+  $('term').style.opacity = 1 - 0.35 * punch;
+
+  // Terminal: spinners that never resolve, then the Smart Search calls.
+  $('before').style.display = choppy ? 'block' : 'none';
+  $('after').style.display = choppy ? 'none' : 'block';
+  for (const id of ['sp1', 'sp2']) $(id).style.transform = `rotate(${Math.floor(t * 8) * 45}deg)`;
+  $('sp2').style.visibility = t > 0.5 ? 'visible' : 'hidden';
+  [...document.querySelectorAll('#after .ln')].forEach((el, i) => { el.style.opacity = T > D + 0.05 + i * 0.08 ? 1 : 0; });
+  $('cur').style.opacity = Math.floor(T * 2.5) % 2 ? 0 : 1;
+
+  // The "summary only" card wobbles in the choppy half and is swept away at the switch.
+  const sumIn = choppy ? Math.min(1, Math.max(0, (t - 0.6) * 3)) : 0;
+  $('summary').style.opacity = choppy ? sumIn : Math.max(0, 1 - (T - SWITCH) * 6);
+  $('summary').style.transform = `rotate(${choppy ? (Math.floor(t * 8) % 2 ? -1.2 : 1.2) : 4 * (T - SWITCH) * 20}deg) translateY(${choppy ? 0 : (T - SWITCH) * 900}px)`;
+
+  for (let i = 0; i < 3; i++) {
+    const k = choppy ? 0 : spring(T - (D + 0.12 + i * 0.15), ...SPRING.card);
+    const el = $('c' + i);
+    el.style.opacity = Math.min(1, k * 1.6);
+    el.style.transform = `translateX(${(1 - k) * -110}px) scale(${0.9 + 0.1 * k})`;
+  }
+  $('c0').querySelector('.hl').style.width = `${352 * easeOut(prog(t, T_LENS + 0.4, T_LENS + 0.9))}px`;
+  $('c0').querySelector('.cite').style.transform = `scale(${spring(t - T_LENS - 0.75, ...SPRING.mascot)})`;
+
+  // The switch: a Smart Search blue ring from Clawd's feet.
+  const rk = prog(T, SWITCH, SWITCH + 0.6);
+  const r = 40 + 1500 * easeOut(rk);
+  Object.assign($('ring').style, { left: `${A.x - r}px`, top: `${A.y - r}px`, width: `${2 * r}px`, height: `${2 * r}px`,
+    opacity: rk > 0 && rk < 1 ? String(1 - rk) : '0', borderWidth: `${6 + 20 * (1 - rk)}px` });
+
+  drawClawd(c);
+
+  const dk = prog(t, T_LAND, T_LAND + 0.45);
+  let dust = '';
+  if (dk > 0 && dk < 1) for (let i = 0; i < 8; i++) {
+    const side = i % 2 ? 1 : -1, n = (i >> 1) + 1, e = easeOut(dk), s = 9 * (1 - dk * 0.6);
+    dust += `<div class="dust" style="left:${B.x + side * (60 + n * 22 + rnd(i) * 10) * e - s / 2}px;top:${B.y - 6 - (10 + n * 6) * Math.sin(Math.PI * dk) - s}px;width:${s}px;height:${s}px;opacity:${1 - dk}"></div>`;
+  }
+  $('dust').innerHTML = dust;
+
+  $('fps').textContent = choppy ? '8 FPS' : '60 FPS';
+  $('fps').style.color = choppy ? '#8C8378' : '#728CE2';
+  const cap = $('cap');
+  const html = choppy ? '内置搜索：一直<b>转圈</b>，读网页只拿到<b>摘要</b>' : '换上 Smart Search：<b>搜</b>、<b>读原文</b>、带<b>出处</b>回答';
+  if (cap.innerHTML !== html) cap.innerHTML = html;
+  const ck = choppy ? Math.min(1, t * 4) : spring(T - SWITCH - 0.1, ...SPRING.card);
+  cap.style.opacity = Math.min(1, ck * 1.5);
+  cap.style.transform = `translateX(-50%) translateY(${(1 - ck) * 40}px)`;
+};
+
+const TEXT = document.body.innerText + '…（）—–[]内置搜索：一直转圈，读网页只拿到摘要换上 Smart Search：搜、读原文、带出处回答 8FPS60';
+loadFonts([
+  ['400 21px "JetBrains Mono"', TEXT], ['700 21px "JetBrains Mono"', TEXT],
+  ['400 21px "Noto Sans SC"', TEXT], ['500 40px "Noto Sans SC"', TEXT], ['700 40px "Noto Sans SC"', TEXT],
+  ['400 18px Inter', TEXT], ['600 25px Inter', TEXT],
+]).then(() => { window.render(0); window.ready = true; });
+</script>
+</body>
+</html>

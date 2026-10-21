@@ -1,0 +1,273 @@
+schema: comet.native.v4
+name: desktop-brand-icon
+language: zh-CN
+phase: archive
+status: done
+state_version: 10
+brief: brief.md
+shape_confirmation_hash: 9e610f1b1f18256b5632b56d7f8991db65ae67634448335c0305ae49c239427f
+spec_changes:
+  - capability: desktop-brand-icon
+    operation: create
+    source: specs/desktop-brand-icon/spec.md
+workspace:
+  isolation: worktree
+  change_branch: codex/desktop-brand-icon
+  target_branch: codex/desktop-windows-signing
+  finish: merge
+loop:
+  stage: done
+  goal_cycle: 1
+  iteration: 1
+  attempt: 1
+  retry_epoch: 0
+  failed_iteration_count: 0
+  no_progress_count: 0
+  execution_failure_count: 0
+  previous_unresolved_ids: []
+  next_action: null
+acceptance:
+  - id: A1
+    source: specs/desktop-brand-icon/spec.md
+    text: Transparent artwork 源 PNG 与最终 PNG
+      有真实透明像素和不透明主体，深色背景被移除，人物和两颗星星保留；原有深色配饰不应误删。预览检查透明边缘，不把黑色/白色底图当透明通道。图标按现有脚本保持方形、等比缩放及透明留白，不拉伸或补画原图裁掉的下半部。
+    result: passed
+    reason:
+      text: Spec scenario `specs/desktop-brand-icon/spec.md:5` verified. Current
+        `assets/branding/source.png` SHA-256 is `76F199...B20D9`, identical to
+        the selected generated transparent PNG; receipt binds the supplied
+        opaque RGB input and selected output in
+        `.desktop-artifacts/icon-source-receipt.json`.
+        `.desktop-artifacts/icon-alpha-check.json` records 652875
+        transparent/897136 opaque-subject source pixels, 573494
+        transparent/463583 opaque-subject pixels in final 1024 PNG, plus true
+        alpha in all 16 PNG/ICO/ICNS frames; bound Runtime `icon-alpha` check
+        passed. Independent visual inspection of source, final PNG, and
+        `.desktop-artifacts/icon-alpha-preview.png` composited on light/dark
+        backgrounds found the supplied character, bow and magnifier accessory,
+        and both stars retained, with no rectangular added backdrop.
+        Transparency is judged from alpha compositing, not residual RGB in
+        near-transparent pixels.
+      truncated: false
+  - id: A2
+    source: specs/desktop-brand-icon/spec.md
+    text: Existing icon consumers stay consistent 品牌 PNG 与 Windows PNG 字节相同；Windows
+      ICO 含原有九种尺寸，macOS ICNS 含原有四种尺寸，共享尺寸帧相同。Web favicon/标题图标与 ICO 64px
+      帧一致。Windows 程序、标题/托盘、安装器、macOS Info.plist/打包和 README
+      继续使用已存在的文件入口。运行现有资源一致性检查，重复生成不产生变化；最终差异不包含无关业务或签名代码。
+    result: passed
+    reason:
+      text: "Current tracked diff contains exactly six resource consumers:
+        `assets/branding/{source,smart-search}.png`,
+        `desktop/windows/Assets/{smart-search.png,smart-search.ico}`,
+        `desktop/packaging/macos/SmartSearch.icns`, and two data-URI
+        replacements in `src/smart_search/assets/ui/index.html`; no staged
+        changes. Consumer-reference files are unchanged, including
+        `desktop/windows/SmartSearch.Desktop.csproj:8,24-25`,
+        `desktop/windows/NativeTray.cs:34`,
+        `desktop/windows/MainWindow.xaml.cs:120`,
+        `desktop/windows/MainWindow.xaml:22`,
+        `desktop/packaging/windows/SmartSearch.iss:51`,
+        `desktop/scripts/build-macos.sh:125`, and
+        `desktop/packaging/macos/Info.plist:14`; README paths remain
+        `README.md:3` and `README.zh-CN.md:3`. The two current marked Web
+        consumers remain at `index.html:7,154`; after replacing only PNG data
+        URIs, its content equals HEAD (LF-normalized), with two URIs
+        before/after. Brand and Windows 1024 PNG hashes both equal
+        `408C25446B69D404F609B04B1110206609B99EAC38D5EF45F2A15C321A8C3A66`.
+        Bound Runtime checks all passed: existing asset test, alpha, Windows
+        package, deterministic conversion, and diff check.
+        `tests/test_brand_assets.py:19,22,30,40,44,48-49` explicitly verifies
+        byte-identical PNGs, nine ICO frames, four ICNS frames/shared bytes,
+        macOS icon entry, and both Web URIs matching ICO 64px; generator routes
+        match `desktop/scripts/Build-Icons.ps1:49-85`."
+      truncated: false
+builder_handoff:
+  candidate_id: c53001a6-b83f-4b0b-9644-a97b2485640f
+  identity_provider: skill-coordinated
+  builder_execution_ref: skill-coordinated:builder:794aec98-94c4-44d7-b572-ba8d26ff963a
+  iteration: 1
+  summary:
+    text: 按指定人物图完成六处同源图标资源替换；附件原为RGB无alpha，内置imagegen去背景后保留RGBA，使用原Build-Icons脚本生成PNG/ICO/ICNS/Web。复核16帧真实alpha、既有一致性测试、重复生成相同字节；Windows候选构建及内嵌九图标/打包Web新图标验证通过。浅/深底预览已检查，无矩形底色，保留人物配饰星星与原裁切。
+    truncated: false
+  addressed_acceptance_ids:
+    - A1
+    - A2
+  checks:
+    - name:
+        text: existing brand asset test
+        truncated: false
+      result: passed
+      note:
+        text: tests/test_brand_assets.py 1passed; shared PNG/native/Webframes
+          consistent.
+        truncated: false
+    - name:
+        text: alpha and reproducibility
+        truncated: false
+      result: passed
+      note:
+        text: 16 PNG/ICO/ICNSframes preservezeroalpha andvisible subject;
+          repeatedoriginalscript byteidentical. See icon-alpha-check.json and
+          icon-source-receipt.json.
+        truncated: false
+    - name:
+        text: Windows package resources
+        truncated: false
+      result: passed
+      note:
+        text: BuildWindows x64 unsignedcandidate passed; EXEcontains all9newframes;
+          packagedPNG/ICO/Webmatchcurrent source andbackendprotocolsmokepassed.
+        truncated: false
+  checks_truncated: false
+  known_limits:
+    - text: Supplied attachment was opaqueRGB; a transparent extraction was created
+        with built-in imagegen.
+      truncated: false
+    - text: No native macOS build,realGUI acceptance,release,commit/push or
+        installedApp replacement.
+      truncated: false
+    - text: Earlier signing acceptance applies to its old artifacts; this icon build
+        is explicitly unsigned.
+      truncated: false
+  known_limits_truncated: false
+  review: null
+  submitted_at: 2026-09-21T03:11:57.725Z
+blockers: []
+verification:
+  candidate_id: c53001a6-b83f-4b0b-9644-a97b2485640f
+  identity_provider: skill-coordinated
+  verifier_execution_ref: skill-coordinated:verifier:c4ca1e0f-ee3a-4f90-8862-4853d7b206d5
+  iteration: 1
+  attempt: 1
+  assurance: skill-coordinated
+  verdict: pass
+  checks:
+    - id: brand-assets
+      name:
+        text: Existing icon container and Web consistency
+        truncated: false
+      argv_display:
+        - text: -m
+          truncated: false
+        - text: pytest
+          truncated: false
+        - text: tests/test_brand_assets.py
+          truncated: false
+        - text: -q
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 737
+    - id: icon-alpha
+      name:
+        text: True alpha on source PNG and native frames
+        truncated: false
+      argv_display:
+        - text: -NoProfile
+          truncated: false
+        - text: -File
+          truncated: false
+        - text: D:\Dev\20_个人项目\智能搜索\smartsearch-desktop-brand-icon\.desktop-artifacts\Check-IconAlpha.ps1
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 2129
+    - id: windows-icon-package
+      name:
+        text: New icon embedded in Windows executable and packaged Web
+        truncated: false
+      argv_display:
+        - text: .desktop-artifacts/check_icon_build.py
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 155
+    - id: deterministic-icons
+      name:
+        text: Repeat original icon conversion without byte drift
+        truncated: false
+      argv_display:
+        - text: -NoProfile
+          truncated: false
+        - text: -Command
+          truncated: false
+        - text: |-
+            $ErrorActionPreference='Stop'
+            $paths=@('assets/branding/smart-search.png','desktop/windows/Assets/smart-search.png','desktop/windows/Assets/smart-search.ico','desktop/packaging/macos/SmartSearch.icns','src/smart_search/assets/ui/index.html')
+            $hashes=@{}
+            foreach($path in $paths){$hashes[$path]=(Get-FileHash -LiteralPath $path).Hash}
+            & ./desktop/scripts/Build-Icons.ps1
+            foreach($path in $paths){if((Get-FileHash -LiteralPath $path).Hash -ne $hashes[$path]){throw ('Icon generation changed '+$path)}}
+            Write-Output 'Repeated generation is byte-identical.'
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 1194
+    - id: diff-check
+      name:
+        text: Whitespace check
+        truncated: false
+      argv_display:
+        - text: diff
+          truncated: false
+        - text: --check
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 74
+  summary:
+    text: Independent read-only verification passed A1 and A2 for candidate
+      c53001a6-b83f-4b0b-9644-a97b2485640f. Runtime status remains
+      Verify/active, stateVersion 5; the final Builder handoff addresses A1/A2
+      and its five candidate-bound Runtime receipts are complete.
+    truncated: false
+  risks:
+    - text: The candidate Windows build is explicitly `unsigned-test`
+        (`.desktop-artifacts/windows-x64-20260921T030645Z-71284-7788297b/result.json`);
+        prior signing acceptance was not reused.
+      truncated: false
+    - text: No native macOS build or real GUI acceptance was performed; these were not
+        A1/A2 requirements.
+      truncated: false
+    - text: No release, commit/push, or installed-App replacement was performed.
+      truncated: false
+  risks_truncated: false
+  completed_at: 2026-09-21T03:25:13.560Z
+history:
+  - goal_cycle: 1
+    iteration: 1
+    attempt: 1
+    outcome: pass
+    unresolved_ids: []
+    summary:
+      text: Independent read-only verification passed A1 and A2 for candidate
+        c53001a6-b83f-4b0b-9644-a97b2485640f. Runtime status remains
+        Verify/active, stateVersion 5; the final Builder handoff addresses A1/A2
+        and its five candidate-bound Runtime receipts are complete.
+      truncated: false
+    completed_at: 2026-09-21T03:25:13.560Z
+history_overflow:
+  dropped_entries: 0
+  first_dropped_at: null
+  last_dropped_at: null
+  outcome_counts:
+    pass: 0
+    fail: 0
+    blocked: 0
+    execution-error: 0
+    recovery: 0
+verification_result: pass
+verification_report: verification.md
+archived: true
+created_at: 2026-09-21T02:58:59.620Z

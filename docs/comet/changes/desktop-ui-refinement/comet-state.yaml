@@ -1,0 +1,289 @@
+schema: comet.native.v4
+name: desktop-ui-refinement
+language: zh-CN
+phase: build
+status: active
+state_version: 33
+brief: brief.md
+shape_confirmation_hash: 36194be017bfa4952a7d3d6369abfac8d9ff1bafe04a08f6ef787e5b1444f6a9
+spec_changes:
+  - capability: desktop-ui-refinement
+    operation: create
+    source: specs/desktop-ui-refinement/spec.md
+workspace:
+  isolation: worktree
+  change_branch: codex/desktop-ui-refinement
+  target_branch: main
+  finish: null
+loop:
+  stage: building
+  goal_cycle: 6
+  iteration: 1
+  attempt: 0
+  retry_epoch: 0
+  failed_iteration_count: 0
+  no_progress_count: 0
+  execution_failure_count: 0
+  previous_unresolved_ids: []
+  next_action: submit-builder-candidate
+acceptance:
+  - id: A1
+    source: specs/desktop-ui-refinement/spec.md
+    text: A1 测试标签和健康记录与实际调用一致 在合成旧 Key、空修改、输入新
+      Key、擦除输入、显式清除和只改无关服务商的情况下，标签和实际请求配置相符；current/draft
+      结果范围准确。桌面两种测试都不修改配置文件或正式 provider_health 文件；Web 空字典不隐式转换为正式探测，未传 overrides
+      的既有行为保留。
+    result: pending
+    reason: null
+  - id: A2
+    source: specs/desktop-ui-refinement/spec.md
+    text: A2 异步操作有即时反馈且不会重复发起
+      延迟模拟探针期间连续点击同一测试按钮只产生一次请求，控件和卡片显示测试中；切页返回仍忙碌。成功、timeout、失败、取消和断开后状态可恢复。保存/预览/运行/安装更新/手动刷新/更新检查/目录选择等操作由同一反馈规则覆盖，业务运行和
+      Skills 的忙碌持续至真实终态。
+    result: pending
+    reason: null
+  - id: A3
+    source: specs/desktop-ui-refinement/spec.md
+    text: A3 状态与主次信息在浅深色和不同宽度均可辨认 Windows 原生概览、服务商、搜索、活动、AI
+      接入、设置页面具备统一主次层次。通过、超时、失败、运行中、未测试/未安装不再同权重黑字；活动卡片等宽。常规窗、窄窗及最大化下无明显空白窄带或溢出；深色图标底、次级文字和状态文字可读，状态不只靠颜色。
+    result: pending
+    reason: null
+  - id: A4
+    source: specs/desktop-ui-refinement/spec.md
+    text: A4 基础配置先行且高级字段和来源信息不丢失 两端解析并消费 section
+      order、tier、placeholder、default、capability_chains；首屏不以 diagnostics
+      开头。配置分组先显示三类基础能力，advanced
+      默认折叠，全部配置字段仍有唯一编辑入口；环境只读与有效/保存差异可见，默认值只做提示不被无意写回。长表单的保存操作保持可见。
+    result: pending
+    reason: null
+  - id: A5
+    source: specs/desktop-ui-refinement/spec.md
+    text: A5 常用界面没有未解释的内部状态码 测试超时、活动 provider.test/version/regression、Skills
+      缺失或过期、冷却状态和搜索工具描述均显示中文可理解文案；高级详情仍可取得原始信息，CLI 参数/输出约定保持不变。
+    result: pending
+    reason: null
+  - id: A6
+    source: specs/desktop-ui-refinement/spec.md
+    text: A6 状态更新不破坏编辑与原有功能
+      输入尚未保存的值后等待另一服务商测试完成、刷新或切页，输入仍在；保存、冲突、空密钥保留、显式清除与环境只读回归通过。搜索结果/导出、活动取消和
+      CLI 独立运行保持原行为，真实用户配置和全局 CLI 不被测试改写。
+    result: pending
+    reason: null
+  - id: A7
+    source: specs/desktop-ui-refinement/spec.md
+    text: A7 macOS 实现覆盖本轮要求且证据边界真实 源码与模型测试覆盖元数据解析/使用、基础项优先、advanced
+      折叠、测试范围、忙碌与重复提交保护、语义状态；独立审查没有明确遗漏。任何未执行的 Swift build/test
+      或原生界面验收均明确记为未验，不借 Windows 验收宣布 macOS 完成。
+    result: pending
+    reason: null
+  - id: A8
+    source: specs/desktop-ui-refinement/spec.md
+    text: A8 修复结果可在本机验证并可追溯 相关 Python 回归、现有完整回归、Windows 构建与原生关键场景通过；构建输入对应最终修改。对照用户
+      Web 参考检查配置层次和忙碌反馈，并留实际窗口证据。源码、测试产物与未验范围明确，不把规划、静态检查或截图当作已发布安装。
+    result: pending
+    reason: null
+  - id: A9
+    source: specs/desktop-ui-refinement/spec.md
+    text: A9 App 和独立 CLI 的版本与来源准确 模拟 App 0.1.19、独立 CLI 0.1.20，界面分别显示，不能声称 App
+      也已更新；模拟 CLI 指向 App 内置路径时合并为随 App 更新。外部升级后点刷新，显示重新解析的路径与版本；普通 npm、mise
+      shim、未知来源和多副本按可确认事实分类。探测不触发安装或修复。
+    result: pending
+    reason: null
+  - id: A10
+    source: specs/desktop-ui-refinement/spec.md
+    text: A10 自动检查和新版本判断正确 在相同、较新、较旧、v 前缀、预发行、开发版本、缺少目标架构附件、离线和 403/429
+      的合成响应中，状态与可执行动作准确。重复启动/手动连点不并发发出相同检查，手动操作有忙碌反馈；自动检查失败不把旧缓存冒充本次成功，也不影响搜索工作。
+    result: pending
+    reason: null
+  - id: A11
+    source: specs/desktop-ui-refinement/spec.md
+    text: A11 下载状态和完整性可验证
+      使用本机合成服务覆盖正常下载、重复点击、取消、网络中断、错误大小/哈希及错架构；仅正确完整的包进入“已下载”并可打开。未完成或错误临时文件不能执行，旧已安装版本保持不变。正式发布清单和客户端选择规则在相同输入下得到一致目标，不误用
+      CI 临时产物。
+    result: pending
+    reason: null
+  - id: A12
+    source: specs/desktop-ui-refinement/spec.md
+    text: A12 更新只作用于所选对象且结果真实 在隔离 App 安装目录与管理器测试替身中验证：App 操作不改独立 CLI/PATH/配置；有草稿或
+      App 自有任务时不强制退出；未知 CLI 来源不代执行；npm/mise 命令只针对 Smart
+      Search，版本读回不符时不报告成功。下载完成、安装器启动、安装成功分别显示。macOS 尚未执行的系统安装验证明确留作未验。
+    result: pending
+    reason: null
+  - id: A13
+    source: specs/desktop-ui-refinement/spec.md
+    text: A13 mise 与长标识符在 Windows 可用 在隔离检出验证 mise 的解释器/模块路径、参数转发、源码测试和检查任务；构造超过 160
+      字符的路径、URL 和配置地址，实际 Markdown 输出保留完整值与竖线转义，普通说明仍可截短。安装运行时下载失败与代码失败分开记录。
+    result: pending
+    reason: null
+  - id: A14
+    source: specs/desktop-ui-refinement/spec.md
+    text: A14 Tinyfish 搜索抓取与配置状态真实 模拟和受控真实请求分别覆盖搜索和抓取；Desktop/Web
+      的新增四字段、类型、掩码与草稿探针可用。错误 fetch 地址不会因 search 成功被误报为全部正常；HTTP/逐 URL
+      timeout、bot_blocked、404 和合成 Key 回显得到正确分类/脱敏，配置修改后恢复规则可验证。
+    result: pending
+    reason: null
+  - id: A15
+    source: specs/desktop-ui-refinement/spec.md
+    text: A15 可选路由、偏好和入口边界一致 未启用 JEV 时既有搜索模式回归保持；启用后候选排除未配置、禁用、硬冷却及显式限制渠道。改变已存在的
+      provider preference 会体现在判断输入及可解释结果；未授权网络的 route/deep 不调用 TypeSafe。桌面可配置
+      JEV 且密钥不会进入候选、错误或活动日志。
+    result: pending
+    reason: null
+  - id: A16
+    source: specs/desktop-ui-refinement/spec.md
+    text: A16 日常检索能判断不足并选择有效后续动作 合成场景覆盖：首轮不相关后换引擎、首轮部分答案后同引擎新 query 补缺口、发现 URL
+      后抓取、没有新增证据时停止；记录每步查询/渠道/原因/判断/耗时与真实用量。相同动作不重复；总预算耗尽后不派发新请求；过滤删除关键证据后不能继续声称
+      sufficient。
+    result: pending
+    reason: null
+  - id: A17
+    source: specs/desktop-ui-refinement/spec.md
+    text: A17 研究组合自主而证据契约不退化 对多子问题场景，JEV
+      可跨轮组合配置好的新闻、通用、文档和抓取能力；至少覆盖两种操作及实际阅读。只有摘要、抓取失败或只剩模型回答时不能冒充可靠引用；三种预算和取消均有界，报告字段与证据文件可追溯，旧
+      research 模式仍通过原测试。
+    result: pending
+    reason: null
+  - id: A18
+    source: specs/desktop-ui-refinement/spec.md
+    text: A18 故障仍有可解释、有预算的降级 覆盖无 Key、鉴权失败、429/529、超时、无候选、无合适选择、非法概率和未知
+      ID。可用能力按规则执行且禁用/过滤/冷却仍有效；输出清楚说明降级。大量长证据不突破预览总量，取消和截止时间后无新调用，日志不泄露任何真实或合成密钥。
+    result: pending
+    reason: null
+  - id: A19
+    source: specs/desktop-ui-refinement/spec.md
+    text: A19 集成结果和合并可追溯 完整 Python 回归、npm 打包/镜像、mise Windows 任务、Windows
+      原生构建和关键交互通过，真实 Tinyfish/JEV 与 Grok 额度限制分列。最终 GitHub 合并包含四个核实作者的贡献及必要修复，关联
+      issue 的解决范围准确；App 发布附件与 CLI 版本分别核实，macOS/ARM64 未验部分不以 Windows 结果代替。
+    result: pending
+    reason: null
+builder_handoff: null
+blockers: []
+verification: null
+history:
+  - goal_cycle: 1
+    iteration: 0
+    attempt: 0
+    outcome: recovery
+    unresolved_ids: []
+    summary:
+      text: Native Shape artifacts changed
+      truncated: false
+    completed_at: 2026-09-20T02:11:30.437Z
+  - goal_cycle: 2
+    iteration: 1
+    attempt: 1
+    outcome: fail
+    unresolved_ids:
+      - A5
+      - A7
+    summary:
+      text: A1、A2、A3、A4、A6、A8 通过；A5 发现 macOS 活动详情直接暴露 provider.test/version/regression
+        等内部 phase，A7 因该明确遗漏失败。当前候选不可判定整体通过。
+      truncated: false
+    completed_at: 2026-09-20T04:12:39.479Z
+  - goal_cycle: 2
+    iteration: 2
+    attempt: 1
+    outcome: pass
+    unresolved_ids: []
+    summary:
+      text: 当前候选的 18 项记录源码/预览程序集哈希均与最终清单一致；复用仍有效的 Python/Windows Runtime 回执，并独立确认
+        macOS 活动列表和详情都经中文 phase 映射、未知值回退为“处理中”、原始事件仅在高级详情可见。A1–A8 均通过；macOS
+        执行边界和 Windows GUI 覆盖范围已如实保留。
+      truncated: false
+    completed_at: 2026-09-20T04:24:57.370Z
+  - goal_cycle: 2
+    iteration: 2
+    attempt: 1
+    outcome: recovery
+    unresolved_ids: []
+    summary:
+      text: 用户追加自动检查更新和下载最新包的体验要求，指定 codex-tweaks 仓库作为实现参考，并要求同时考虑 App 与独立 CLI
+        版本更新。保留已通过 A1-A8 的界面实现和历史验收，当前先调查与补充 Shape，不视作用户接受上一轮结果，也不自动发布或升级本机。
+      truncated: false
+    completed_at: 2026-09-20T04:38:33.375Z
+  - goal_cycle: 3
+    iteration: 0
+    attempt: 0
+    outcome: recovery
+    unresolved_ids: []
+    summary:
+      text: Native confirmed acceptance criteria changed
+      truncated: false
+    completed_at: 2026-09-20T05:25:23.937Z
+  - goal_cycle: 4
+    iteration: 1
+    attempt: 0
+    outcome: recovery
+    unresolved_ids: []
+    summary:
+      text: Native Shape artifacts changed
+      truncated: false
+    completed_at: 2026-09-20T07:00:16.593Z
+  - goal_cycle: 5
+    iteration: 1
+    attempt: 1
+    outcome: fail
+    unresolved_ids:
+      - A2
+      - A3
+      - A5
+      - A7
+      - A19
+    summary:
+      text: 冻结候选 284e9b3530c98ce0a25675b82bd1a3649452bb1c 的 Runtime 检查均通过，但独立源码核验确认
+        A2、A3、A5、A7 未达标；A19 因这些失败和 PR 尚未合并而阻塞。其余 14 项通过。
+      truncated: false
+    completed_at: 2026-09-20T07:21:04.379Z
+  - goal_cycle: 5
+    iteration: 2
+    attempt: 1
+    outcome: recovery
+    unresolved_ids: []
+    summary:
+      text: 当前 CI 的 Python 3.10 明确失败：新增测试使用 Python 3.11 才有的
+        Task.cancelling；保持确认范围，修复测试兼容性后重新提交。尚未启动本轮独立 Verifier。
+      truncated: false
+    completed_at: 2026-09-20T07:29:42.448Z
+  - goal_cycle: 5
+    iteration: 3
+    attempt: 1
+    outcome: pass
+    unresolved_ids: []
+    summary:
+      text: 冻结候选 bd0d2c5 的 A1–A18 经独立源码、当前 Runtime/CI 和有效历史证据核对通过；#47 已合并至远端 main
+        ad11395a，四个来源 PR/head 与对应 issue 均已远端读回，A19 通过。
+      truncated: false
+    completed_at: 2026-09-20T07:53:58.503Z
+  - goal_cycle: 5
+    iteration: 3
+    attempt: 1
+    outcome: recovery
+    unresolved_ids: []
+    summary:
+      text: 用户本机验收发现模型信息误导、搜索来源区域布局和活动展开刷新抖动，要求核查并修复；保留原确认范围，恢复实现修复。
+      truncated: false
+    completed_at: 2026-09-20T08:22:36.014Z
+  - goal_cycle: 5
+    iteration: 4
+    attempt: 0
+    outcome: recovery
+    unresolved_ids: []
+    summary:
+      text: Native Shape artifacts changed
+      truncated: false
+    completed_at: 2026-09-20T09:12:26.674Z
+history_overflow:
+  dropped_entries: 0
+  first_dropped_at: null
+  last_dropped_at: null
+  outcome_counts:
+    pass: 0
+    fail: 0
+    blocked: 0
+    execution-error: 0
+    recovery: 0
+verification_result: pending
+verification_report: null
+archived: false
+created_at: 2026-09-20T02:01:17.748Z

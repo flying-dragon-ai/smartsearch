@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Smart Search · 日常使用</title>
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/500.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/700.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/900.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/600.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/700.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/jetbrains-mono/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/jetbrains-mono/700.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/zcool-kuaile/400.css">
+<link rel="stylesheet" href="../shared/tutorial.css">
+<link rel="stylesheet" href="../shared/app.css">
+<style>
+  .hi { background: linear-gradient(transparent 55%, #FFE07A 55%) no-repeat 0 0 / 0% 100%; }
+  .crow { position: absolute; left: 40px; right: 40px; }
+  .ccmd { font: 700 28px/42px var(--mono); color: var(--ink); white-space: nowrap; }
+  .ccmd .p { color: var(--muted); }
+  .cexp { margin-top: 10px; font: 500 30px var(--sans); color: var(--ss-deep); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="layer" id="world">
+    <div class="cam" id="cam">
+      <div class="paper"></div>
+      <div class="win" id="termA" style="left:200px; top:110px; width:1520px; height:860px">
+        <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="title">my-app — claude</span></div>
+        <div class="viewport"><div class="rows" id="rowsA"></div></div>
+      </div>
+      <div class="win" id="termB" style="left:160px; top:170px; width:1600px; height:740px">
+        <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="title">~ — zsh</span></div>
+        <div class="viewport" id="cheat"></div>
+      </div>
+      <div id="appHost"></div>
+      <div class="sticker2" id="alt"></div>
+      <div class="hlbox" id="hl"></div>
+      <div class="ss-ripple" id="rip"></div>
+      <div class="ss-cursor" id="cur"></div>
+    </div>
+  </div>
+
+  <div class="scene" id="title">
+    <div class="paper"></div>
+    <div class="small" id="tKicker">Smart Search</div>
+    <div class="big" id="tBig"><span>日常使用</span></div>
+    <div class="mid" id="tSub">配好之后，平时这样用</div>
+    <div id="toc">
+      <div><b>1</b>在 AI 里直接问<em>最常用</em></div>
+      <div><b>2</b>搜索与研究<em>在 App 里搜</em></div>
+      <div><b>3</b>在线研究<em>难题交给它</em></div>
+      <div><b>4</b>活动<em>看进度</em></div>
+      <div><b>5</b>命令行<em>四个命令</em></div>
+    </div>
+  </div>
+
+  <div class="scene" id="endc">
+    <div class="paper"></div>
+    <div class="big" id="eBig"><span id="eBigS">就这么用</span></div>
+    <div class="mid" id="eL1">直接跟 AI 说「用 Smart Search 查…」</div>
+    <div class="chipc" id="eCmd">npm install -g @konbakuyomu/smart-search</div>
+    <div class="mid" id="eL2" style="font-size:34px;color:var(--muted)">命令和配置项都在使用手册里</div>
+    <div class="small" id="eGh">github.com/konbakuyomu/smartsearch/tree/main/docs/guide</div>
+    <img class="mascot" id="eMascot" src="../assets/mascot-720.png" alt="">
+    <div class="note" id="eNote">Clawd 为非官方同人形象，与 Anthropic 无关 · 界面为 Smart Search Windows 版的示意重绘</div>
+  </div>
+
+  <div class="layer" id="ov">
+    <div class="sticker" id="chip"><b id="chipN"></b><span id="chipT"></span><em id="chipS"></em></div>
+    <div class="cap" id="cap"></div>
+    <div id="fx"></div>
+    <div class="actor" id="aG"></div>
+  </div>
+</div>
+<script type="module" src="usage.js"></script>
+</body>
+</html>

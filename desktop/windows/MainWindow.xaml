@@ -1,0 +1,120 @@
+<Window
+    x:Class="SmartSearch.Desktop.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SmartSearch.Desktop"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    Title="Smart Search">
+  <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <muxc:NavigationView x:Name="RootNavigation"
+                         PaneDisplayMode="Auto"
+                         OpenPaneLength="216"
+                         ExpandedModeThresholdWidth="900"
+                         CompactModeThresholdWidth="0"
+                         IsPaneOpen="True"
+                         IsTitleBarAutoPaddingEnabled="False"
+                         AlwaysShowHeader="False"
+                         HorizontalContentAlignment="Stretch"
+                         VerticalContentAlignment="Stretch"
+                         IsBackButtonVisible="Collapsed"
+                         IsSettingsVisible="False"
+                         Loaded="OnNavigationLoaded"
+                         DisplayModeChanged="OnNavigationDisplayModeChanged"
+                         SelectionChanged="OnNavigationSelectionChanged">
+      <muxc:NavigationView.PaneFooter>
+        <Grid x:Name="MascotSpacer" Height="160" />
+      </muxc:NavigationView.PaneFooter>
+      <muxc:NavigationView.MenuItems>
+        <muxc:NavigationViewItem Content="概览" Tag="overview" IsSelected="True">
+          <muxc:NavigationViewItem.Icon><SymbolIcon Symbol="Home" /></muxc:NavigationViewItem.Icon>
+        </muxc:NavigationViewItem>
+        <muxc:NavigationViewItem Content="服务商" Tag="providers">
+          <muxc:NavigationViewItem.Icon><SymbolIcon Symbol="Contact" /></muxc:NavigationViewItem.Icon>
+        </muxc:NavigationViewItem>
+        <muxc:NavigationViewItem Content="搜索与研究" Tag="search">
+          <muxc:NavigationViewItem.Icon><SymbolIcon Symbol="Find" /></muxc:NavigationViewItem.Icon>
+        </muxc:NavigationViewItem>
+        <muxc:NavigationViewItem Content="活动" Tag="activity">
+          <muxc:NavigationViewItem.Icon><SymbolIcon Symbol="AllApps" /></muxc:NavigationViewItem.Icon>
+        </muxc:NavigationViewItem>
+        <muxc:NavigationViewItem Content="AI 接入" Tag="ai">
+          <muxc:NavigationViewItem.Icon><SymbolIcon Symbol="Remote" /></muxc:NavigationViewItem.Icon>
+        </muxc:NavigationViewItem>
+        <muxc:NavigationViewItem Content="设置与关于" Tag="settings">
+          <muxc:NavigationViewItem.Icon><SymbolIcon Symbol="Setting" /></muxc:NavigationViewItem.Icon>
+        </muxc:NavigationViewItem>
+      </muxc:NavigationView.MenuItems>
+      <Grid Background="{ThemeResource LayerFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="52" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1" Padding="24,0">
+          <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="WorkspaceTitle" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <Button x:Name="FeedbackButton" IsEnabled="False" Style="{StaticResource ToolbarIconButtonStyle}">
+                <Viewbox Width="16" Height="16"><SymbolIcon x:Name="FeedbackIcon" Symbol="Message" /></Viewbox>
+                <Button.Flyout>
+                  <Flyout x:Name="FeedbackFlyout" Placement="BottomEdgeAlignedRight">
+                    <StackPanel Spacing="12" Width="340">
+                      <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="*" />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="FeedbackHeading" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <Button x:Name="ClearFeedbackButton" Grid.Column="1" Click="OnClearFeedbackClick" />
+                      </Grid>
+                      <ScrollViewer MaxHeight="320" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="8">
+                          <TextBlock x:Name="FeedbackTitle" FontWeight="SemiBold" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                          <TextBlock x:Name="FeedbackMessage" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                        </StackPanel>
+                      </ScrollViewer>
+                    </StackPanel>
+                  </Flyout>
+                </Button.Flyout>
+              </Button>
+              <Button x:Name="RefreshWorkspaceButton" Click="OnRefreshWorkspaceClick" Style="{StaticResource ToolbarIconButtonStyle}">
+                <Viewbox Width="16" Height="16"><SymbolIcon Symbol="Refresh" /></Viewbox>
+              </Button>
+            </StackPanel>
+          </Grid>
+        </Border>
+        <ContentControl x:Name="ContentFrame" Grid.Row="1"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch" />
+      </Grid>
+    </muxc:NavigationView>
+    <Grid x:Name="MascotFooter" Width="216" Height="160" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+      <Grid IsHitTestVisible="False">
+        <Grid.Clip><RectangleGeometry Rect="0,0,216,160" /></Grid.Clip>
+        <Image x:Name="AppLogo" Source="ms-appx:///Assets/mascot.png" Width="168" Height="168"
+               HorizontalAlignment="Left" VerticalAlignment="Bottom" Stretch="Uniform"
+               AutomationProperties.AccessibilityView="Raw">
+          <Image.RenderTransform><TranslateTransform Y="16" /></Image.RenderTransform>
+        </Image>
+      </Grid>
+      <Button x:Name="ConnectionIndicator" Width="24" Height="24" MinWidth="24" MinHeight="24"
+            Padding="8" BorderThickness="0" Background="Transparent"
+            HorizontalAlignment="Right" VerticalAlignment="Bottom"
+            PointerEntered="OnConnectionPointerEntered" PointerExited="OnConnectionPointerExited"
+            Click="OnConnectionIndicatorClick" AutomationProperties.LiveSetting="Polite">
+        <Button.Resources>
+          <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="Transparent" />
+          <SolidColorBrush x:Key="ButtonBackgroundPressed" Color="Transparent" />
+        </Button.Resources>
+        <ToolTipService.ToolTip>
+          <ToolTip x:Name="ConnectionToolTip" Placement="Top" />
+        </ToolTipService.ToolTip>
+        <Ellipse x:Name="ConnectionDot" Style="{StaticResource ConnectionIdleStyle}" />
+      </Button>
+    </Grid>
+  </Grid>
+</Window>

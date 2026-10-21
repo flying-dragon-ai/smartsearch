@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Plan C · Side-by-side race</title>
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/500.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/900.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/zcool-kuaile/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/600.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/jetbrains-mono/400.css">
+<style>
+  :root { --ink: #2A2622; --cream: #FFF1D6; --grey: #DAD7D0; --ss: #728CE2; --hi: #FFE07A; --clay: #D97757;
+    --sans: "Inter", "Noto Sans SC", sans-serif; --fun: "ZCOOL KuaiLe", "Noto Sans SC", sans-serif; }
+  html, body { margin: 0; background: #111; overflow: hidden; }
+  #stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; }
+  .half { position: absolute; top: 0; width: 960px; height: 1080px; overflow: hidden; }
+  #L { left: 0; background: var(--grey) radial-gradient(circle, #C2BEB5 2.6px, transparent 3px) 0 0 / 18px 18px; }
+  #R { left: 960px; background: var(--cream) radial-gradient(circle, #F6D9A8 2.6px, transparent 3px) 0 0 / 18px 18px; }
+  .floor { position: absolute; left: 0; right: 0; top: 860px; height: 220px; border-top: 5px solid var(--ink); }
+  #L .floor { background: #CBC7BF; } #R .floor { background: #F7E2BC; }
+  .tag { position: absolute; top: 925px; font: 900 40px var(--sans); padding: 8px 20px; border: 4px solid var(--ink); border-radius: 12px; box-shadow: 6px 6px 0 var(--ink); }
+  #L .tag { left: 330px; background: #F2F0EB; color: #6E6A63; transform: rotate(-3deg); }
+  #R .tag { left: 250px; background: #FFFFFF; color: var(--ink); transform: rotate(2deg); display: flex; align-items: center; gap: 12px; }
+  #R .tag img { width: 52px; height: 52px; border-radius: 12px; }
+  .card { position: absolute; background: #FFFFFF; border: 5px solid var(--ink); border-radius: 18px; box-shadow: 10px 10px 0 var(--ink); }
+  #sum { left: 110px; top: 380px; width: 560px; height: 330px; border-color: #8E8A82; box-shadow: 10px 10px 0 #8E8A82; transform-origin: 50% 50%; }
+  #sum .lab { position: absolute; left: 24px; top: -26px; background: #8E8A82; color: #fff; font: 900 30px var(--sans); padding: 4px 16px; border-radius: 10px; }
+  #sum i { position: absolute; left: 34px; height: 18px; border-radius: 9px; background: #CFCAC2; filter: blur(4px); }
+  #spin { position: absolute; left: 600px; top: 330px; width: 74px; height: 74px; border-radius: 50%; border: 12px solid #BDB8AF; border-top-color: #6E6A63; box-sizing: border-box; }
+  #stuck { position: absolute; left: 150px; top: 236px; font: 400 104px var(--fun); color: #8E8A82; -webkit-text-stroke: 3px #6E6A63; }
+  #page { left: 1040px; top: 400px; width: 800px; height: 430px; overflow: hidden; }
+  #page .url { height: 56px; border-bottom: 4px solid var(--ink); background: #F3F0FF; font: 400 22px/56px "JetBrains Mono", monospace; padding-left: 24px; color: #4B5DB0; }
+  #page .bar { position: absolute; left: 34px; height: 14px; border-radius: 7px; background: #E8E2D8; }
+  #quote { position: absolute; left: 34px; top: 140px; width: 720px; font: 400 30px/48px var(--sans); color: var(--ink); }
+  #quote .m { background-image: linear-gradient(var(--hi), var(--hi)); background-repeat: no-repeat; background-size: 0% 100%; padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  #cite { position: absolute; right: 24px; top: 74px; font: 700 26px "JetBrains Mono", monospace; color: #fff; background: var(--ss); border: 4px solid var(--ink); border-radius: 12px; padding: 2px 12px; transform: scale(0); }
+  #gloss { position: absolute; left: 34px; top: 342px; font: 500 28px var(--sans); color: #4B5DB0; white-space: nowrap; }
+  #swoosh { position: absolute; left: 1440px; top: 236px; font: 400 150px var(--fun); color: var(--ss); -webkit-text-stroke: 5px var(--ink); paint-order: stroke fill; transform-origin: 50% 70%; }
+  #divider { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; }
+  #vs { position: absolute; left: 905px; top: 600px; width: 110px; height: 110px; border-radius: 50%; background: var(--ink); color: #fff; font: 900 50px/110px var(--sans); text-align: center; transform: rotate(-8deg); }
+  #q { position: absolute; left: 50%; top: 34px; transform: translateX(-50%); background: #fff; border: 5px solid var(--ink); border-radius: 18px; box-shadow: 10px 10px 0 var(--ink);
+    padding: 14px 36px; font: 900 40px var(--sans); color: var(--ink); white-space: nowrap; }
+  #round { position: absolute; left: 50%; top: 150px; font: 400 56px var(--fun); color: var(--ink); white-space: nowrap; transform-origin: 50% 50%; }
+  #round span { background: var(--hi); padding: 0 14px; border-radius: 10px; }
+  .clawd { position: absolute; left: 0; top: 0; filter: drop-shadow(6px 6px 0 rgba(42, 38, 34, .9)); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="half" id="L">
+    <div class="floor"></div>
+    <div class="tag">内置搜索</div>
+    <div class="card" id="sum"><span class="lab">只有摘要</span>
+      <i style="top:56px;width:470px"></i><i style="top:100px;width:420px"></i><i style="top:144px;width:490px"></i><i style="top:188px;width:300px"></i><i style="top:232px;width:380px"></i><i style="top:276px;width:250px"></i></div>
+    <div id="spin"></div>
+    <div id="stuck">卡……</div>
+    <div class="clawd" id="cl"></div>
+  </div>
+  <div class="half" id="R">
+    <div class="floor"></div>
+    <div class="tag"><img src="../../assets/smart-search-256.png" alt="">Smart Search</div>
+  </div>
+  <div class="card" id="page">
+    <div class="url">react.dev/reference/react/useEffect</div>
+    <span id="cite">[1]</span>
+    <div class="bar" style="top:86px;width:520px"></div><div class="bar" style="top:114px;width:600px"></div>
+    <div id="quote"><span class="m">After every commit with changed dependencies, React will first run the cleanup function</span> (if you provided it) with the old values, and then run your setup function with the new values.</div>
+    <div id="gloss">↳ 依赖变了：先用旧值跑清理，再用新值跑 setup</div>
+  </div>
+  <div class="clawd" id="cr"></div>
+  <div id="swoosh">唰！</div>
+  <svg id="divider" viewBox="0 0 1920 1080"><polyline id="zig" fill="none" stroke="#2A2622" stroke-width="10" stroke-linejoin="miter"/></svg>
+  <div id="vs">VS</div>
+  <div id="q">同一个问题：useEffect 的清理函数什么时候执行？</div>
+  <div id="round"><span>第 2 回合 · 读原文</span></div>
+</div>
+<script type="module">
+import { clawdSVG, pixartSVG, MAGNIFIER, BIG_EYE, ICONS } from '../../shared/clawd.js';
+import { prog, easeOut, easeInOut, spring, SPRING, hop, lerp, loadFonts } from '../../shared/motion.js';
+
+const $ = id => document.getElementById(id);
+const stage = $('stage');
+const fit = () => { stage.style.transform = `scale(${innerWidth / 1920})`; };
+fit(); addEventListener('resize', fit);
+
+// Torn-paper divider.
+const pts = [];
+for (let y = -20, i = 0; y <= 1100; y += 44, i++) pts.push(`${960 + (i % 2 ? 16 : -16)},${y}`);
+$('zig').setAttribute('points', pts.join(' '));
+
+const PX = 10;
+const cache = new Map();
+function clawd(el, key, opts, x, y, sq = 0) {
+  if (el.dataset.k !== key) {
+    if (!cache.has(key)) cache.set(key, clawdSVG({ px: PX, pad: 2, glint: true, outline: '#FFFFFF', outlineWidth: 0.7, ...opts }));
+    el.innerHTML = cache.get(key); el.dataset.k = key;
+  }
+  const w = 22 * PX;
+  el.style.transformOrigin = `${w / 2}px ${12 * PX}px`;
+  el.style.transform = `translate(${x - w / 2}px, ${y - 12 * PX}px) scale(${1 + sq * 0.7}, ${1 - sq})`;
+}
+
+window.render = function (T) {
+  const tl = Math.floor(T * 8) / 8;   // the built-in side runs at 8 fps, the Smart Search side is smooth
+
+  const r = spring(T - 0.05, ...SPRING.heavy);
+  $('round').style.transform = `translateX(-50%) scale(${0.4 + 0.6 * r}) rotate(${(1 - r) * -8}deg)`;
+  $('round').style.opacity = Math.min(1, r * 2);
+
+  // Left: wobbling summary, a spinner that never resolves, Clawd squinting at it.
+  $('sum').style.transform = `rotate(${Math.floor(tl * 8) % 2 ? -3.5 : -2}deg)`;
+  $('spin').style.transform = `rotate(${Math.floor(tl * 8) * 45}deg)`;
+  $('stuck').style.transform = `rotate(${-6 + (Math.floor(tl * 8) % 2) * 2}deg) translate(${(Math.floor(tl * 8) % 3) * 3}px, 0)`;
+  const icon = tl > 2.4 ? pixartSVG(ICONS.question, 15, -12) : '';
+  clawd($('cl'), 'L' + (tl > 2.4) + (Math.floor(tl * 2) % 2), { eyes: 'squint', arms: 'down', legs: 'stand', extra: pixartSVG(ICONS.sweat, 16, Math.floor(tl * 2) % 2 ? -2 : -1) + icon },
+    560, 860, Math.floor(tl * 4) % 2 ? 0.04 : 0);
+
+  // Right: the page springs in, Clawd hops onto it, raises the magnifier, the quote gets highlighted, [1] pops.
+  const pk = spring(T - 0.15, ...SPRING.card);
+  $('page').style.transform = `translateX(${(1 - pk) * 700}px) rotate(${(1 - pk) * 6 + 1}deg)`;
+  const J0 = 0.45, J1 = 1.05, LENS = 1.3;
+  const from = { x: 2010, y: 760 }, to = { x: 1250, y: 401 };
+  let x = to.x, y = to.y, sq = 0, opts = { eyes: 'none', arms: 'hold', legs: 'stand', extra: pixartSVG(MAGNIFIER, 9, -1) + pixartSVG(BIG_EYE, 12, 1) }, key = 'Rlens';
+  if (T < J1) {
+    const k = prog(T, J0, J1);
+    x = lerp(from.x, to.x, easeOut(k)); y = lerp(from.y, to.y, k) - 260 * hop(k); sq = -0.15 * hop(k);
+    opts = { eyes: 'wide', arms: 'up', legs: 'tuck' }; key = 'Rjump';
+  } else if (T < LENS) {
+    const d = T - J1; sq = 0.3 * Math.exp(-d * 9) * Math.cos(d * 22);
+    opts = { eyes: 'happy', arms: 'down', legs: 'stand' }; key = 'Rland';
+  } else sq = 0.1 * Math.exp(-(T - LENS) * 10) * Math.sin((T - LENS) * 30);
+  clawd($('cr'), key, opts, x, y, sq);
+
+  $('quote').querySelector('.m').style.backgroundSize = `${100 * easeInOut(prog(T, 1.55, 2.35))}% 100%`;
+  $('cite').style.transform = `scale(${spring(T - 2.45, ...SPRING.mascot)})`;
+  const g = spring(T - 2.2, ...SPRING.card);
+  $('gloss').style.opacity = Math.min(1, g * 1.5);
+  $('gloss').style.transform = `translateY(${(1 - g) * 30}px)`;
+  const s = spring(T - 1.5, ...SPRING.mascot);
+  $('swoosh').style.transform = `scale(${s}) rotate(${-10 + 6 * s}deg)`;
+};
+
+const TEXT = document.body.innerText + '?？！…';
+loadFonts([
+  ['900 40px "Noto Sans SC"', TEXT], ['500 32px "Noto Sans SC"', TEXT], ['400 56px "ZCOOL KuaiLe"', '第 2 回合 · 读原文卡……唰！'],
+  ['400 30px Inter', TEXT], ['600 30px Inter', TEXT], ['400 22px "JetBrains Mono"', TEXT],
+]).then(() => { window.render(0); window.ready = true; });
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "algorithm": "Ed25519",
+  "public_key": "Z8WLmmp4W+JNNM1oUala+1jv5oLwL4ydorZSQdf8UeA=",
+  "created_at": "2026-09-21T18:59:43.4615803+00:00",
+  "purpose": "Sparkle update archive and appcast signatures; not Apple Developer ID"
+}

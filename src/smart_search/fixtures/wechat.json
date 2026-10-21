@@ -1,0 +1,12 @@
+{
+  "results": [
+    {
+      "id": "wx-fixture-1",
+      "title": "某品牌财报解读：收入、利润与现金流",
+      "url": "https://example.invalid/wechat/earnings-note",
+      "snippet": "fixture：公众号文章摘要，只含检索字段，不含互动。",
+      "published_date": "2026-04-12",
+      "author": "fixture"
+    }
+  ]
+}

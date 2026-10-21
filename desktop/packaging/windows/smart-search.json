@@ -1,0 +1,6 @@
+{
+  "subject": "CN=Smart Search",
+  "sha256": "9BECD07F73FF0B9ECB10D9C7D6D9B2E48584FBC6FA3D4759BF6661892DBBB35B",
+  "not_after": "2029-09-21T01:50:04.0000000Z",
+  "trust": "self-signed; not trusted by Windows by default"
+}

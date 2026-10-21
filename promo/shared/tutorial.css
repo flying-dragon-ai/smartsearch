@@ -1,0 +1,72 @@
+/* Shared look of the two tutorial films: the feature film's paper, stickers and captions. */
+:root {
+  --paper: #ECE5D8; --dots: #DDD3C2; --ink: #2A2622; --muted: #8C8378; --line: #E6DFD3;
+  --ss: #728CE2; --ss-deep: #4A62C9; --ss-soft: #DCE4FA; --hi: #FFE07A; --green: #2F9E4F;
+  --mono: "JetBrains Mono", "Noto Sans SC", monospace;
+  --sans: "Inter", "Noto Sans SC", sans-serif;
+  --fun: "ZCOOL KuaiLe", "Noto Sans SC", sans-serif;
+}
+html, body { margin: 0; background: var(--paper); overflow: hidden; }
+#stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; overflow: hidden; background: var(--paper); }
+.layer { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.cam { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.paper { position: absolute; left: -3000px; top: -3000px; width: 7920px; height: 7080px;
+  background: var(--paper) radial-gradient(circle, var(--dots) 1.7px, transparent 2.2px) 0 0 / 30px 30px; }
+.scene { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; display: none; }
+.actor { position: absolute; left: 0; top: 0; }
+
+/* step chip, captions, stickers */
+.sticker { position: absolute; background: #FFFFFF; border: 5px solid var(--ink); border-radius: 18px; box-shadow: 9px 9px 0 var(--ink); }
+#chip { left: 44px; top: 36px; display: flex; align-items: center; gap: 18px; padding: 10px 28px 10px 12px; white-space: nowrap; transform-origin: 0 50%; }
+#chip b { width: 62px; height: 62px; border-radius: 14px; background: var(--hi); font: 400 44px/62px var(--fun); color: var(--ink); text-align: center; }
+#chip span { font: 900 38px var(--sans); color: var(--ink); }
+#chip em { font: 500 30px var(--sans); font-style: normal; color: var(--muted); }
+.cap { position: absolute; left: 960px; top: 948px; padding: 14px 34px; border-radius: 999px; background: rgba(255, 255, 255, .88); backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(70, 50, 30, .16); font: 500 46px var(--sans); color: var(--ink); white-space: nowrap; }
+.cap b { font-weight: 700; background: linear-gradient(transparent 60%, var(--ss-soft) 60%); padding: 0 2px; }
+#ff { position: absolute; right: 44px; top: 40px; padding: 8px 22px; border-radius: 14px; background: var(--ink); color: #FFFFFF; font: 700 32px var(--sans); white-space: nowrap; }
+.chipc { position: absolute; padding: 12px 26px; border-radius: 14px; background: #FFFFFF; border: 4px solid var(--ink); box-shadow: 7px 7px 0 var(--ink);
+  font: 700 32px var(--mono); color: var(--ink); white-space: nowrap; }
+.big { position: absolute; font: 400 120px/1.15 var(--fun); color: var(--ink); white-space: nowrap; }
+.big span { background: var(--hi); padding: 0 24px; border-radius: 20px; }
+.mid { position: absolute; font: 500 44px var(--sans); color: var(--ink); white-space: nowrap; }
+.small { position: absolute; font: 400 28px var(--mono); color: var(--muted); white-space: nowrap; }
+.mascot { position: absolute; width: 640px; height: 640px; }
+.note { position: absolute; left: 110px; bottom: 44px; font: 400 22px var(--sans); color: var(--muted); white-space: nowrap; }
+
+/* the title card's contents list */
+#toc { position: absolute; left: 1020px; top: 250px; width: 780px; }
+#toc div { display: flex; align-items: center; gap: 22px; height: 104px; margin-bottom: 18px; padding: 0 28px; border-radius: 20px; background: #FFFFFF;
+  box-shadow: 0 14px 30px rgba(70, 50, 30, .10); font: 700 40px var(--sans); color: var(--ink); white-space: nowrap; }
+#toc b { width: 58px; height: 58px; border-radius: 14px; background: var(--hi); font: 400 40px/58px var(--fun); text-align: center; flex-shrink: 0; }
+#toc em { margin-left: auto; font: 500 28px var(--sans); font-style: normal; color: var(--muted); }
+
+/* a marker ring drawn around part of the App */
+.hlbox { position: absolute; border: 5px solid #F2B52B; border-radius: 16px; box-shadow: 0 0 0 6px rgba(255, 224, 122, .35); pointer-events: none; display: none; z-index: 40; }
+
+/* terminal windows, as in the feature film */
+.win { position: absolute; background: #FFFFFF; border-radius: 18px; overflow: hidden;
+  box-shadow: 0 28px 60px rgba(70, 50, 30, .13), 0 2px 6px rgba(70, 50, 30, .08); }
+.bar { height: 52px; background: #F7F4EF; border-bottom: 1px solid #EDE7DD; display: flex; align-items: center; padding: 0 22px; gap: 10px; }
+.dot { width: 13px; height: 13px; border-radius: 50%; background: #E2DBD0; }
+.bar .title { flex: 1; text-align: center; margin-right: 60px; font: 400 18px var(--sans); color: var(--muted); }
+.viewport { position: absolute; left: 0; right: 0; top: 52px; bottom: 0; overflow: hidden; }
+.rows { position: absolute; left: 40px; right: 40px; top: 26px; font: 400 22px/36px var(--mono); color: var(--ink); }
+.row { min-height: 36px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.row .p { color: var(--muted); }
+.row b { font-weight: 700; }
+.row .dim { color: var(--muted); }
+.row .url { color: #5A6FC4; }
+.row .cm { color: var(--green); }
+.bul { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #B9B0A3; margin: 0 12px 3px 2px; vertical-align: middle; }
+.bul.ok { background: var(--green); } .bul.ink { background: var(--ink); }
+.elbow { display: inline-block; width: 12px; height: 14px; border-left: 2px solid #B9B0A3; border-bottom: 2px solid #B9B0A3; margin: 0 14px 7px 28px; vertical-align: middle; }
+.caret { display: inline-block; width: 11px; height: 25px; background: var(--muted); vertical-align: middle; margin-left: 3px; }
+
+/* the command cheat sheet */
+.cheat { position: absolute; left: 0; right: 0; display: flex; align-items: baseline; gap: 28px; }
+.cheat code { font: 700 25px var(--mono); color: var(--ink); white-space: nowrap; }
+.cheat span { font: 500 25px var(--sans); color: var(--muted); white-space: nowrap; }
+.sticker2 { position: absolute; padding: 16px 26px; border-radius: 16px; background: #FFFFFF; border: 4px solid var(--ink); box-shadow: 7px 7px 0 var(--ink);
+  font: 500 30px var(--sans); color: var(--ink); white-space: nowrap; }
+.sticker2 em { font-style: normal; font-weight: 700; color: var(--ss-deep); }

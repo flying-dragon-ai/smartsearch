@@ -1,0 +1,386 @@
+schema: comet.native.v4
+name: desktop-guided-setup
+language: zh-CN
+phase: archive
+status: done
+state_version: 16
+brief: brief.md
+shape_confirmation_hash: 5689e39cfda537c96873f1ee777847430d88d317ff342d49e8c7c39de1cd1e9a
+spec_changes:
+  - capability: desktop-guided-setup
+    operation: create
+    source: specs/desktop-guided-setup/spec.md
+workspace:
+  isolation: worktree
+  change_branch: codex/desktop-guided-setup
+  target_branch: main
+  finish: pull-request
+loop:
+  stage: done
+  goal_cycle: 2
+  iteration: 2
+  attempt: 1
+  retry_epoch: 0
+  failed_iteration_count: 1
+  no_progress_count: 0
+  execution_failure_count: 0
+  previous_unresolved_ids: []
+  next_action: null
+acceptance:
+  - id: A1
+    source: specs/desktop-guided-setup/spec.md
+    text: 保留导航功能与卡片风格 WHEN 浏览全部页面，THEN
+      六项导航与现有业务功能仍可访问，概览及App更新、环境、Skills等功能组保留统一卡片，未变成散放的文字和按钮。
+    result: passed
+    reason:
+      text: Windows 保留六项 NavigationView，macOS 保留六个 Destination；概览和各功能页仍使用既有原生卡片/面板结构。
+      truncated: false
+  - id: A2
+    source: specs/desktop-guided-setup/spec.md
+    text: 统一环境入口 WHEN 在设置、Skills及业务页面查看环境状态，THEN
+      不重复整套CLI管理；完整操作进入概览的本地环境区，未就绪时给清楚原因与可用的准备动作。
+    result: passed
+    reason:
+      text: 完整 CLI 管理仅在概览的本地环境区；未就绪页指向概览。两端失效 CLI 错误已改为概览本地环境的重新检测或选择入口。
+      truncated: false
+  - id: A3
+    source: specs/desktop-guided-setup/spec.md
+    text: 发现mise全局shim及工具安装 WHEN Smart Search由mise单独管理且不在Node的npm全局prefix，THEN
+      App沿shim/管理器找到实际安装并显示mise来源；探针无安装副作用，更新使用mise且保持该管理器所有权。
+    result: passed
+    reason:
+      text: mise 全局 shim/工具解析、所有权和原管理器更新由当前实现处理；Runtime 的隔离 npm/mise 管理检查及真实 mise
+        只读发现均通过。
+      truncated: false
+  - id: A4
+    source: specs/desktop-guided-setup/spec.md
+    text: 发现普通npm及多安装 WHEN Smart Search由普通npm安装，或机器有多个Node/npm/工具安装，THEN
+      能找到并固定所选有效安装，手动选择可覆盖自动选择，安装/更新使用对应管理器和prefix，不覆盖其他安装或全局设置。
+    result: passed
+    reason:
+      text: Runtime 管理检查覆盖多个 npm 安装、显式选择、失效手动路径不静默回退、含空格路径及原 prefix/manager 操作。
+      truncated: false
+  - id: A5
+    source: specs/desktop-guided-setup/spec.md
+    text: 旧格式安全兼容与可解释失败 WHEN 已有旧版包装器或损坏/不兼容安装，THEN
+      不自动执行会下载Python的bootstrap；可安全确定已准备运行环境及兼容协议时连接，否则明确是旧版/不兼容/损坏并给更新或手动下载路径，不简单标作未安装。
+    result: passed
+    reason:
+      text: 旧 wrapper 仅在 manifest 明示 smartSearchBinary=true 时才能力探针；fixture 断言旧 wrapper
+        未执行，手动路径要求完整独立包与协议匹配。
+      truncated: false
+  - id: A6
+    source: specs/desktop-guided-setup/spec.md
+    text: 首次准备直到配置和测试 WHEN 没有可用环境，THEN 概览显示当前步骤及下一动作，按需引导获取Node/npm、安装/更新或定位Smart
+      Search，完成后自动验证连接并继续配置服务商、显式测试及可选Skills；已完成步骤复用，不因移动App目录重装。
+    result: passed
+    reason:
+      text: 概览按本地环境、服务商、测试和可选 Skills 组织步骤；Runtime standalone 检查验证无 Node/npm 的手动独立 CLI
+        发现、握手、停止和重连。
+      truncated: false
+  - id: A7
+    source: specs/desktop-guided-setup/spec.md
+    text: 断线和发行阻塞可以恢复 WHEN 用户进入服务商等页面但CLI不可用，或网络失败/兼容版本尚未发布，THEN
+      页面解释实际状态并提供准备/重试/手动获取动作，不停在“本地引擎未连接”；无法安装时不展示假成功或无效下载。
+    result: passed
+    reason:
+      text: 两端缺失 CLI 的实际启动路径均给出概览本地环境恢复入口；Runtime BackendLifecycleCheck
+        已断言该错误路径，概览同时给出重试和手动下载/选择动作。
+      truncated: false
+  - id: A8
+    source: specs/desktop-guided-setup/spec.md
+    text: 单一更新动作与启动检查 WHEN 启动两次App且间隔不到24小时或手动检查，THEN
+      每次启动均检查（支持更新的安装包且偏好开启），发现新版后原按钮变为下载更新；无重复检查/跳过操作阵列，下载和安装状态真实，失败可重试。
+    result: passed
+    reason:
+      text: Windows 每个新进程激活时检查，macOS 启动时静默检查；主按钮在发现版本后变为下载更新，双语指南已同步为无常驻 24 小时 App 轮询。
+      truncated: false
+  - id: A9
+    source: specs/desktop-guided-setup/spec.md
+    text: API与路由字段可理解 WHEN 查看或填写服务商/路由字段，THEN
+      每个字段都有相关而非仅内部变量名的说明和适用示例，地址合同正确；帮助支持鼠标和键盘，示例/默认/真实值清楚区分，Key不泄露。
+    result: passed
+    reason:
+      text: Runtime metadata/i18n/docs 回归通过；字段 metadata 覆盖双语帮助、URL 示例和默认/占位边界，Windows
+        与 macOS 均提供悬浮、键盘/辅助功能和详情入口，秘密值不在详情中回显。
+      truncated: false
+  - id: A10
+    source: specs/desktop-guided-setup/spec.md
+    text: 保留数据与管理器边界 WHEN 检测、安装失败、切页、取消或更新，THEN
+      配置/Key/结果/Skills和未保存工作受保护；不自动迁移、更改管理器或删除任何用户文件。
+    result: passed
+    reason:
+      text: CLI 操作限定当前所选 npm/mise 管理器和 prefix；更新前保护草稿及 App 自有任务，配置写入保持锁与原子替换，Skills
+        保留/备份语义未变。
+      truncated: false
+  - id: A11
+    source: specs/desktop-guided-setup/spec.md
+    text: 可运行验证与双端一致 WHEN 交付候选，THEN
+      环境发现、步骤恢复、更新、字段帮助和UI资源有可运行回归，Windows构建与实际mise只读检测留有证据；Mac编译和GUI分别标记实际覆盖情况，未经授权不发布或替换正式安装。
+    result: passed
+    reason:
+      text: 5 项 Runtime 检查均通过；独立复算当前 19/19 Windows 源文件与 staging SHA-256 匹配，App 与
+        standalone CLI 哈希也匹配候选回执。回执明确标记 macOS 新改动、GUI 和实际安装升级为未运行，且未替换正式安装或发布。
+      truncated: false
+builder_handoff:
+  candidate_id: 53994f37-d3a6-44f3-aea0-2d2efa6a5561
+  identity_provider: skill-coordinated
+  builder_execution_ref: skill-coordinated:builder:8e7e0399-f859-4d05-91bd-1da418c84016
+  iteration: 2
+  summary:
+    text: 第2轮修复 A2/A7/A8：Windows/macOS 实际失效 CLI 提示均指向概览的本地环境；中英文 App
+      用户指南同步环境详情入口、启动检查、单一下载按钮、手动 CLI 和 Skills 完整调用路径。增加真实 BackendClient
+      缺失文件错误路径检查和 frozen/manual Skill
+      生成回归。其余环境发现/选择/更新/页面实现未改变。修后聚焦86通过/1跳过；新Windows完整散包构建+协议smoke通过，19源文件与staged字节一致，回执
+      .desktop-artifacts/guided-candidate-r2.json；前轮全量1033通过/19跳过仍覆盖未改业务核心。前Verifier
+      main风险文字需澄清：本地main2379557是候选与origin/main703b038的祖先（0/1），不是远端比候选更先进。尚无目标分支合并。
+    truncated: false
+  addressed_acceptance_ids:
+    - A1
+    - A2
+    - A3
+    - A4
+    - A5
+    - A6
+    - A7
+    - A8
+    - A9
+    - A10
+    - A11
+  checks:
+    - name:
+        text: Post-repair focused tests
+        truncated: false
+      result: passed
+      note:
+        text: 86 passed/1 host symlink skipped; includes manual frozen Skill invocation.
+        truncated: false
+    - name:
+        text: Native missing CLI and standalone lifecycle
+        truncated: false
+      result: passed
+      note:
+        text: BackendLifecycleCheck executed new missing-file guard and standalone
+          stop/reconnect.
+        truncated: false
+    - name:
+        text: Windows rebuilt candidate
+        truncated: false
+      result: passed
+      note:
+        text: .desktop-artifacts\windows-x64-20260922T141833Z-57120-30e2b75e\result.json
+        truncated: false
+    - name:
+        text: Mac native/GUI and actual candidate updater install
+        truncated: false
+      result: not-run
+      note:
+        text: Local host lacks Mac toolchain; user GUI pending; portable build does not
+          prove actual Velopack installation.
+        truncated: false
+  checks_truncated: false
+  known_limits:
+    - text: Mac native compile and GUI of new changes not run; preserve prior PR51
+        baseline separately.
+      truncated: false
+    - text: Actual Agent invocation not tested; frozen Skill generation now covered
+        and full path guide documented.
+      truncated: false
+    - text: Windows native updater SDK behavior preserved; this portable candidate has
+        no actual upgrade/install receipt.
+      truncated: false
+    - text: Compatible npm publication remains paused; no real user CLI/App
+        replacement, commits, push or release.
+      truncated: false
+  known_limits_truncated: false
+  review: null
+  submitted_at: 2026-09-22T14:20:43.747Z
+blockers: []
+verification:
+  candidate_id: 53994f37-d3a6-44f3-aea0-2d2efa6a5561
+  identity_provider: skill-coordinated
+  verifier_execution_ref: skill-coordinated:verifier:b26a773e-9c5f-45c9-a8d1-b465e27f7671
+  iteration: 2
+  attempt: 1
+  assurance: skill-coordinated
+  verdict: pass
+  checks:
+    - id: guided-python
+      name:
+        text: Metadata, bilingual resources and generated references
+        truncated: false
+      argv_display:
+        - text: -m
+          truncated: false
+        - text: pytest
+          truncated: false
+        - text: tests/test_ui_metadata.py
+          truncated: false
+        - text: tests/test_guide.py
+          truncated: false
+        - text: tests/test_i18n.py
+          truncated: false
+        - text: tests/test_desktop_skills.py
+          truncated: false
+        - text: -q
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 3327
+    - id: guided-native-management
+      name:
+        text: Native npm/mise ownership and multi-install selection
+        truncated: false
+      argv_display:
+        - text: -NoProfile
+          truncated: false
+        - text: -Command
+          truncated: false
+        - text: $fixtureRoot = Join-Path (Get-Location)
+            ('.desktop-artifacts/guided-runtime-fixture-' +
+            [guid]::NewGuid().ToString('N')); & .venv/Scripts/python.exe
+            desktop/scripts/create_npm_fixture.py $fixtureRoot
+            'C:/Users/dxt98/AppData/Local/mise/installs/node/24.16.0/node.exe';
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; dotnet run
+            --project desktop/tests/CLIManagementCheck --configuration Release
+            -- $fixtureRoot; exit $LASTEXITCODE
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 12518
+    - id: guided-standalone
+      name:
+        text: Standalone CLI detection and private protocol reconnect without Node/npm
+        truncated: false
+      argv_display:
+        - text: run
+          truncated: false
+        - text: --project
+          truncated: false
+        - text: desktop/tests/BackendLifecycleCheck
+          truncated: false
+        - text: --configuration
+          truncated: false
+        - text: Release
+          truncated: false
+        - text: --
+          truncated: false
+        - text: --standalone
+          truncated: false
+        - text: D:\Dev\20_个人项目\智能搜索\smartsearch-desktop-guided-setup\.desktop-artifacts\windows-x64-20260922T141833Z-57120-30e2b75e\backend-20260922T141833Z-54456-23ee1cfe\dist\smart-search\smart-search.exe
+          truncated: false
+        - text: D:\Dev\20_个人项目\智能搜索\smartsearch-desktop-guided-setup\.desktop-artifacts\guided-runtime-standalone-r2
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 3529
+    - id: guided-real-mise
+      name:
+        text: Read-only discovery of actual global mise installation
+        truncated: false
+      argv_display:
+        - text: run
+          truncated: false
+        - text: --no-build
+          truncated: false
+        - text: --project
+          truncated: false
+        - text: desktop/tests/CLIManagementCheck
+          truncated: false
+        - text: --configuration
+          truncated: false
+        - text: Release
+          truncated: false
+        - text: --
+          truncated: false
+        - text: --discover
+          truncated: false
+        - text: D:\Dev\20_个人项目\智能搜索\smartsearch-desktop-guided-setup\.desktop-artifacts\guided-runtime-real-mise
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 6066
+    - id: diff-check
+      name:
+        text: Diff whitespace validation
+        truncated: false
+      argv_display:
+        - text: diff
+          truncated: false
+        - text: --check
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 117
+  summary:
+    text: Runtime 五项绑定检查均通过；当前候选的 Windows 源、App 和 standalone CLI 哈希均与回执一致。上一轮 A2/A7
+      的错误恢复入口及 A8 的双语指南不一致已修复；未发现新的失败验收项。
+    truncated: false
+  risks:
+    - text: 本轮 macOS 新改动未在本机原生编译或运行，GUI 仍待用户验收；PR51 保留的两端基线证据不能替代这些新增 macOS 改动的验证。
+      truncated: false
+    - text: 当前 Windows 候选是 portable build，未取得本轮 Velopack 实际安装、下载、差分回退或升级回执。
+      truncated: false
+    - text: 手动独立 CLI 的 frozen Skill 生成和完整调用说明已有回归，但没有真实 Agent 调用回执。
+      truncated: false
+    - text: 兼容 npm 发布仍暂停；未替换真实用户 App/CLI，未提交、集成、推送或发布。
+      truncated: false
+  risks_truncated: false
+  completed_at: 2026-09-22T14:31:24.535Z
+history:
+  - goal_cycle: 1
+    iteration: 1
+    attempt: 0
+    outcome: recovery
+    unresolved_ids: []
+    summary:
+      text: Native Shape artifacts changed
+      truncated: false
+    completed_at: 2026-09-22T13:57:18.699Z
+  - goal_cycle: 2
+    iteration: 1
+    attempt: 1
+    outcome: fail
+    unresolved_ids:
+      - A2
+      - A7
+      - A8
+    summary:
+      text: Runtime 五项检查均通过，且 19/19 Windows staged-source 哈希仍匹配当前候选；A2/A7 的失效 CLI
+        恢复入口和 A8 的双语更新指南不一致使本轮不能通过。
+      truncated: false
+    completed_at: 2026-09-22T14:15:19.529Z
+  - goal_cycle: 2
+    iteration: 2
+    attempt: 1
+    outcome: pass
+    unresolved_ids: []
+    summary:
+      text: Runtime 五项绑定检查均通过；当前候选的 Windows 源、App 和 standalone CLI 哈希均与回执一致。上一轮 A2/A7
+        的错误恢复入口及 A8 的双语指南不一致已修复；未发现新的失败验收项。
+      truncated: false
+    completed_at: 2026-09-22T14:31:24.535Z
+history_overflow:
+  dropped_entries: 0
+  first_dropped_at: null
+  last_dropped_at: null
+  outcome_counts:
+    pass: 0
+    fail: 0
+    blocked: 0
+    execution-error: 0
+    recovery: 0
+verification_result: pass
+verification_report: verification.md
+archived: true
+created_at: 2026-09-22T13:18:17.730Z

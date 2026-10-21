@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-21T07:46:56Z",
+  "title": "Design System: Smart Search for macOS",
+  "extensions": {
+    "native": {
+      "platform": "macOS",
+      "frameworks": [
+        "SwiftUI",
+        "AppKit"
+      ],
+      "geometryUnit": "macOS logical point",
+      "sourceFiles": [
+        "desktop/macos/Sources/SmartSearchDesktop/DesktopLayout.swift",
+        "desktop/macos/Sources/SmartSearchDesktop/DesktopSplitView.swift",
+        "desktop/macos/Sources/SmartSearchDesktop/ContentView.swift",
+        "desktop/macos/Sources/SmartSearchDesktop/SmartSearchDesktopApp.swift"
+      ],
+      "colors": {
+        "accent": "Color.accentColor",
+        "contentBackground": "Color(nsColor: .textBackgroundColor)",
+        "primaryText": "default foreground / .primary",
+        "secondaryText": ".secondary",
+        "panelBorder": "Color(nsColor: .separatorColor).opacity(0.7)",
+        "success": "Color.green",
+        "attention": "Color.orange",
+        "error": "Color.red"
+      },
+      "typography": {
+        "pageTitle": ".title2.weight(.semibold)",
+        "sectionTitle": ".headline",
+        "body": ".body",
+        "supporting": ".callout / .caption",
+        "technical": ".system(..., design: .monospaced)",
+        "duration": ".monospacedDigit()"
+      },
+      "metrics": {
+        "pagePadding": 24,
+        "sectionSpacing": 24,
+        "cardPadding": 16,
+        "cardRadius": 12,
+        "cardBorderWidth": 1,
+        "sheetWidth": 560,
+        "sheetHeight": 480,
+        "sheetPadding": 20,
+        "disclosureMinimumHeight": 30,
+        "resultLineSpacing": 4,
+        "insetListOuterPadding": 8,
+        "pageInsetPolicy": "All six workspace pages and split details use 24 pt leading/trailing/top padding. Native inset-list rows receive 8 pt outer compensation. Card padding remains 16 pt.",
+        "contentSizing": "fills the available detail viewport, including while the sidebar expands or collapses"
+      },
+      "window": {
+        "default": [
+          1080,
+          760
+        ],
+        "minimum": [
+          920,
+          620
+        ],
+        "sidebarWidth": 220,
+        "toolbar": "stable workspace toolbar on the NavigationSplitView container; explicit item identifiers, fixed refresh icon size and always-visible native background"
+      },
+      "visualAcceptance": "partial real GUI verification: search/provider/activity widths, compact settings and operation feedback at 920 pt; English, dark appearance and wide-window checks remain pending",
+      "representation": "保留原生 API；不生成固定 CSS 色值、色阶、Web 断点或 HTML 控件仿制。",
+      "splitViews": {
+        "api": "NSSplitViewController inside the existing SwiftUI Scene",
+        "persistence": "UserDefaults per page; temporary narrow-window clamping retains preferred width",
+        "holdingPriorities": {
+          "leading": 251,
+          "detail": 250
+        },
+        "providers": {
+          "leadingMinInitialMax": [
+            184,
+            220,
+            280
+          ],
+          "detailMinimum": 400,
+          "detailPadding": 24
+        },
+        "search": {
+          "leadingMinInitialMax": [
+            280,
+            320,
+            360
+          ],
+          "detailMinimum": 360,
+          "inputPadding": 24,
+          "resultPadding": 24
+        },
+        "activity": {
+          "leadingMinInitialMax": [
+            224,
+            260,
+            320
+          ],
+          "detailMinimum": 360
+        }
+      },
+      "settings": {
+        "navigation": "single scrolling page",
+        "pagePadding": 24,
+        "sectionSpacing": 24,
+        "groupSpacing": 12,
+        "sections": [
+          "project identity",
+          "general",
+          "app updates",
+          "independent CLI",
+          "advanced"
+        ],
+        "panels": "DesktopPanel(compact: true), including every CLI group",
+        "compactPanel": {
+          "horizontalPadding": 16,
+          "verticalPadding": 12,
+          "contentSpacing": 8,
+          "labelSpacing": 4
+        },
+        "automaticUpdateRow": "leading wrapping description with trailing fixed-size native switch",
+        "visualAcceptance": "observed at 920 pt in a settings-start preview: update switch alignment, App and CLI updates, runtime and advanced panels; English, dark appearance and wider windows pending",
+        "appearance": "system by default; persistent light/dark override applied through NSApp and SwiftUI",
+        "contentSizing": "fills the available detail viewport"
+      },
+      "routingEditor": {
+        "placement": "first ordinary two-line row in the shared provider list; same row component, no icon or special container",
+        "modes": {
+          "hybrid": "embedding and classifier configuration with shared timeout",
+          "jev": "TypeSafe credentials, retrieval judgments and result processing",
+          "rules": "no model parameters",
+          "off": "no routing parameters"
+        },
+        "researchSourcePreferences": "separate advanced navigation item",
+        "conditionalFields": "JEV filtering threshold only while filtering is enabled",
+        "choiceLabels": "localized display labels; raw backend values are preserved"
+      },
+      "secretFields": {
+        "existingValue": "fixed mask shown as SecureField prompt, never as a draft value",
+        "presence": "backend Boolean secret_presence distinguishes empty and configured keys",
+        "clear": "explicit clear action; typing a replacement removes the pending clear"
+      },
+      "providerNavigation": {
+        "classification": "runtime provider_profiles.capability; field capabilities only as fallback",
+        "order": [
+          "main_search",
+          "docs_search",
+          "web_search",
+          "web_fetch",
+          "vertical_search"
+        ],
+        "rows": "one occurrence per provider; name, configuration state and unsaved marker",
+        "subtitle": "localized runtime strengths and all declared capabilities; experimental and explicit-only restrictions retained",
+        "search": "name, purpose and all capabilities; selection and drafts remain stable"
+      },
+      "operationFeedback": {
+        "presentation": "SwiftUI popover below an always-present toolbar button; page hierarchy and height remain stable",
+        "contentWidth": 360,
+        "padding": 16,
+        "messageMaximumHeight": 320,
+        "overflow": "ViewThatFits with a native ScrollView; heading and clear button stay outside the scrolling content",
+        "content": "complete selectable text; error heading with warning symbol, neutral ordinary messages",
+        "lifecycle": "dismiss and reopen retained messages; explicit clear disables the entry; repeated foreground failures present again, unchanged background polling failures do not",
+        "visualAcceptance": "observed in a 920 pt Chinese/light settings-start preview with explicit sample messages: long installation guidance, dismiss/reopen/clear, repeated errors and notices, 30-paragraph scrolling; no real install or configuration write triggered"
+      },
+      "sidebarFooter": {
+        "mascotWidth": 168,
+        "imageRegionHeight": 160,
+        "imageOffsetY": 16,
+        "alignment": "leading, flush to window edge",
+        "readyColor": "#35C759",
+        "status": "bottom-trailing 8 pt status light centered in a 24 pt hover target flush with the corner, giving an 8 pt visible edge gap; localized tooltip and accessibility label; no visible text"
+      },
+      "skills": {
+        "order": [
+          "source card",
+          "runtime card",
+          "Agent selection card"
+        ],
+        "footer": "selection count leading; refresh and update trailing",
+        "details": "read-only missing and changed file groups"
+      }
+    },
+    "motion": [
+      {
+        "name": "disclosure",
+        "value": "SwiftUI .easeInOut(duration: 0.18)",
+        "purpose": "整行展开；accessibilityReduceMotion 开启时使用 nil animation。"
+      }
+    ],
+    "windows": {
+      "framework": "WinUI",
+      "sourceFiles": [
+        "desktop/windows/MainWindow.xaml",
+        "desktop/windows/MainWindow.Layout.cs",
+        "desktop/windows/ActionPanel.cs",
+        "desktop/windows/App.xaml"
+      ],
+      "navigation": {
+        "openWidth": 216,
+        "expandedThreshold": 900,
+        "compactThreshold": 0
+      },
+      "workspace": {
+        "toolbarHeight": 52,
+        "pagePadding": 24,
+        "sectionSpacing": 24,
+        "scrollContent": "fills viewport width minus the shared page inset; remeasured on size changes",
+        "sectionHeaderSpacing": 4,
+        "sectionContentSpacing": 12,
+        "pageInsetPolicy": "24 px outer padding for scrolling pages, split panes and activity toolbar; provider search field uses the same top inset.",
+        "cardPadding": 16,
+        "cardContentPolicy": "The shared card owns all four insets. Rows add no outer padding; adaptive grids add an 8 px row gap only when stacked; separators have no extra margins and appear only between list items."
+      },
+      "actions": "Native buttons wrap at their measured widths; shared footer has a top divider and trailing actions",
+      "mascot": {
+        "source": "assets/branding/source.png",
+        "packagedAsset": "desktop/windows/Assets/mascot.png",
+        "width": 168,
+        "placement": "leading and bottom edges of expanded sidebar; connection light overlays the bottom-trailing corner; hidden with collapsed navigation",
+        "horizontalOffset": 0,
+        "verticalOffset": 16,
+        "imageRegionHeight": 160
+      },
+      "verification": "Windows x64 publish 20260921T135442Z passed and the running preview path was verified. Overview and provider cards, rounded native inputs, ComboBox, toolbar and footer buttons were observed in UTM. Settings, Skills and activity cards use the same repaired container and row primitives; dark, English and narrow visual checks were not repeated in this pass.",
+      "toolbarIcons": {
+        "buttonSize": 36,
+        "symbolSize": 16,
+        "style": "native Button with centered system icon"
+      },
+      "controls": {
+        "minimumHeight": 36,
+        "fieldHelpButton": 24,
+        "fieldHelpSymbol": 14,
+        "styleInheritance": "Button, TextBox, PasswordBox and ComboBox extend the corresponding WinUI Default*Style; icon buttons also preserve the native base style.",
+        "compactSwitch": "Keep the native switch template; cancel its unused 12 px trailing On/Off label gap when both labels are hidden."
+      },
+      "activityToolbar": "native SelectorBar with zero outer padding and 36 px minimum item height on the leading side; vertically centered refresh and more trailing; full-width divider above split view",
+      "connectionIndicator": {
+        "diameter": 8,
+        "readyColor": "#35C759",
+        "hoverTarget": 24,
+        "trailingInset": 0,
+        "bottomInset": 0,
+        "states": "ready green, connecting amber, failed red, disconnected secondary",
+        "description": "localized tooltip and automation name; no visible text",
+        "visibleEdgeGap": 8
+      },
+      "sdk": "Microsoft.WindowsAppSDK 2.5.1 (stable, released 2026-09-16); the loaded package includes WinUI 2.3.9. The Windows 10 target framework is not a control-style version."
+    }
+  },
+  "components": [
+    {
+      "name": "主要操作",
+      "kind": "button",
+      "description": "保存、运行和更新；进行中显示 BusyLabel，按条件禁用。",
+      "native": "Button.buttonStyle(.borderedProminent)"
+    },
+    {
+      "name": "原生输入",
+      "kind": "input",
+      "description": "保留系统标签、编辑、焦点和禁用语义。",
+      "native": "TextField / SecureField / Picker / Toggle"
+    },
+    {
+      "name": "主导航",
+      "kind": "nav",
+      "description": "六个工作区及底部连接状态。",
+      "native": "NavigationSplitView + List(selection:).listStyle(.sidebar)"
+    },
+    {
+      "name": "状态标签",
+      "kind": "chip",
+      "description": "文字加状态色；Capsule 底色透明度 0.12。",
+      "native": "StatusTag"
+    },
+    {
+      "name": "内容面板",
+      "kind": "card",
+      "description": "语义背景、连续圆角、细边界，无自定义投影。",
+      "native": "DesktopPanel"
+    },
+    {
+      "name": "整行展开",
+      "kind": "custom",
+      "description": "真实 Button、键盘操作、展开状态与减少动态效果分支。",
+      "native": "WholeRowDisclosureStyle"
+    },
+    {
+      "name": "任务分栏",
+      "kind": "custom",
+      "description": "左侧选择或输入，右侧编辑或阅读结果；各栏独立滚动，原生分隔条可拖动。",
+      "native": "DesktopSplitView"
+    },
+    {
+      "name": "操作提示",
+      "kind": "custom",
+      "description": "工具栏入口打开系统浮层；保留完整消息、长文滚动、关闭后重看和显式清除，不改变页面布局。",
+      "native": "ToolbarItem + SwiftUI popover + OperationFeedback"
+    }
+  ],
+  "narrative": {
+    "northStar": "Apple 原生 macOS 工作台",
+    "overview": "使用系统窗口、字体与控件建立熟悉感。Codex Tweaks 提供结构参考，Smart Search 保留自己的名称和图标。先呈现主要任务、必要状态与下一步行动，技术细节按需进入。",
+    "keyCharacteristics": [
+      "原生、清楚、克制；真实状态；稳定留白。"
+    ],
+    "rules": [
+      {
+        "name": "The 语义颜色 Rule",
+        "body": "保留系统 API，不以固定 Hex 替代；状态必须有文字依据。",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do 复用原生组件和统一间距，保持任务与返回上下文。",
+      "Do 为状态提供文字、为图标提供名称，并验证浅深色、缩放和键盘焦点。"
+    ],
+    "donts": [
+      "Don't 用 CSS 仿制品、固定色值或额外阴影替代原生系统。",
+      "Don't 让技术详情抢占主要任务，或将编译、打包视为视觉验收。"
+    ]
+  }
+}

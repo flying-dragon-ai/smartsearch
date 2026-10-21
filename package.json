@@ -1,0 +1,49 @@
+{
+  "name": "@konbakuyomu/smart-search",
+  "version": "0.1.31",
+  "description": "CLI-first multi-source web research with xAI/OpenAI-compatible search, Exa, Context7, Zhipu, Tavily, Firecrawl, and Deep Research planning.",
+  "license": "MIT",
+  "homepage": "https://github.com/konbakuyomu/smartsearch#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konbakuyomu/smartsearch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/konbakuyomu/smartsearch/issues"
+  },
+  "bin": {
+    "smart-search": "npm/bin/smart-search.js"
+  },
+  "files": [
+    "npm/bin/",
+    "skills/smart-search-cli/**",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node npm/scripts/test.js",
+    "set-version": "node npm/scripts/set-package-version.js",
+    "sync:python-version": "node npm/scripts/sync-python-version.js",
+    "version": "node npm/scripts/sync-python-version.js && git add pyproject.toml package.json package-lock.json",
+    "pack:dry": "npm pack --dry-run",
+    "check:skill-parity": "node npm/scripts/check-skill-parity.js",
+    "smoke:tarball": "node npm/scripts/smoke-packed-install.js",
+    "publish:dry": "npm publish --dry-run --access public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "smartSearchBinary": true,
+  "optionalDependencies": {
+    "@konbakuyomu/smart-search-darwin-x64": "0.1.31",
+    "@konbakuyomu/smart-search-darwin-arm64": "0.1.31",
+    "@konbakuyomu/smart-search-win32-x64": "0.1.31",
+    "@konbakuyomu/smart-search-win32-arm64": "0.1.31",
+    "@konbakuyomu/smart-search-linux-x64": "0.1.31",
+    "@konbakuyomu/smart-search-linux-arm64": "0.1.31"
+  }
+}

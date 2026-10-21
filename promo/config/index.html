@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Smart Search · 配置教程</title>
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/500.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/700.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/noto-sans-sc/900.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/600.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/inter/700.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/jetbrains-mono/400.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/jetbrains-mono/700.css">
+<link rel="stylesheet" href="/node_modules/@fontsource/zcool-kuaile/400.css">
+<link rel="stylesheet" href="../shared/tutorial.css">
+<link rel="stylesheet" href="../shared/app.css">
+</head>
+<body>
+<div id="stage">
+  <!-- the App on the desk, seen through one camera -->
+  <div class="layer" id="world">
+    <div class="cam" id="cam">
+      <div class="paper"></div>
+      <div id="appHost"></div>
+      <div class="hlbox" id="hl"></div>
+      <div class="ss-ripple" id="rip"></div>
+      <div class="ss-cursor" id="cur"></div>
+    </div>
+  </div>
+
+  <div class="scene" id="title">
+    <div class="paper"></div>
+    <div class="small" id="tKicker">Smart Search App</div>
+    <div class="big" id="tBig"><span>配置教程</span></div>
+    <div class="mid" id="tSub">五个页面，一次配好</div>
+    <div id="toc">
+      <div><b>1</b>概览<em>安装 CLI</em></div>
+      <div><b>2</b>服务商<em>填 Key、测试、保存</em></div>
+      <div><b>3</b>意图路由<em>打开 Jev 选路</em></div>
+      <div><b>4</b>更新 Skills<em>接入 AI 工具</em></div>
+      <div><b>5</b>设置与关于<em>语言、外观、目录</em></div>
+    </div>
+  </div>
+
+  <div class="scene" id="endc">
+    <div class="paper"></div>
+    <div class="big" id="eBig"><span id="eBigS">配好了！</span></div>
+    <div class="mid" id="eL1">平时直接让 AI 查，或打开「搜索与研究」</div>
+    <div class="chipc" id="eCmd">smart-search setup</div>
+    <div class="mid" id="eL2" style="font-size:34px;color:var(--muted)">不想开 App？终端里一条命令也能配</div>
+    <div class="small" id="eGh">github.com/konbakuyomu/smartsearch · 下一集：日常使用</div>
+    <img class="mascot" id="eMascot" src="../assets/mascot-720.png" alt="">
+    <div class="note" id="eNote">Clawd 为非官方同人形象，与 Anthropic 无关 · 界面为 Smart Search Windows 版的示意重绘</div>
+  </div>
+
+  <div class="layer" id="ov">
+    <div class="sticker" id="chip"><b id="chipN"></b><span id="chipT"></span><em id="chipS"></em></div>
+    <div id="ff">⏩ 快进</div>
+    <div class="cap" id="cap"></div>
+    <div id="fx"></div>
+    <div class="actor" id="aG"></div>
+  </div>
+</div>
+<script type="module" src="config.js"></script>
+</body>
+</html>

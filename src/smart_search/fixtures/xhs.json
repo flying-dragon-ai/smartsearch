@@ -1,0 +1,12 @@
+{
+  "results": [
+    {
+      "id": "xhs-fixture-1",
+      "title": "露营装备清单：帐篷、睡袋、炉具",
+      "url": "https://example.invalid/xhs/camping-kit",
+      "snippet": "fixture：按人数和季节列的露营装备笔记，不含购买链接。",
+      "published_date": "2026-03-01",
+      "author": "fixture"
+    }
+  ]
+}

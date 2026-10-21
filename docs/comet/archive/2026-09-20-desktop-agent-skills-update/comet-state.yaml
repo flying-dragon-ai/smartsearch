@@ -1,0 +1,323 @@
+schema: comet.native.v4
+name: desktop-agent-skills-update
+language: zh-CN
+phase: archive
+status: done
+state_version: 14
+brief: brief.md
+shape_confirmation_hash: 329616aa3bafdc208e4d5d0691ece43fd77cbb7e4a9c751763cd3f8ceef490e3
+spec_changes:
+  - capability: desktop-agent-skills
+    operation: create
+    source: specs/desktop-agent-skills/spec.md
+workspace:
+  isolation: worktree
+  change_branch: codex/desktop-agent-skills-update
+  target_branch: main
+  finish: merge
+loop:
+  stage: done
+  goal_cycle: 1
+  iteration: 2
+  attempt: 1
+  retry_epoch: 0
+  failed_iteration_count: 0
+  no_progress_count: 0
+  execution_failure_count: 0
+  previous_unresolved_ids: []
+  next_action: null
+acceptance:
+  - id: A1
+    source: specs/desktop-agent-skills/spec.md
+    text: Trusted stable source WHEN 最新正式版比 App 内置副本更新，THEN 页面以官方稳定版归档中的 Skills
+      为基准，显示版本与检查时间；不执行远程代码，不使用 main 或预发布版本。
+    result: passed
+    reason:
+      text: 固定 npm latest 元数据源，拒绝非稳定版本、非预期 tarball、重定向和未通过
+        SHA512/归档校验的内容；只将归档作为数据读取。src/smart_search/desktop_skills.py:25-91；src/smart_search/desktop_updates.py:23-30；tests/test_desktop_skills.py:103-125。
+      truncated: false
+  - id: A2
+    source: specs/desktop-agent-skills/spec.md
+    text: Download failure preserves installations WHEN
+      网络失败、重定向不可信、摘要不符、归档路径越界或含特殊文件，THEN 检查失败可重试，已安装的 Skill
+      保持不变，旧缓存不得冒充本次最新检查成功。
+    result: passed
+    reason:
+      text: 校验或网络失败只置错误/缓存状态并禁用同步，不进入 Agent
+        写入；归档路径、类型、大小和摘要均校验。src/smart_search/desktop_skills.py:25-70,158-193；tests/test_desktop_skills.py:96-155。
+      truncated: false
+  - id: A3
+    source: specs/desktop-agent-skills/spec.md
+    text: Automatic checks do not install WHEN 到达自动检查周期，THEN
+      至多一个检查任务运行，只更新缓存与提示；关闭自动检查后不再自动联网；只有用户点击安装或更新所选目标才写入 Agent 目录。
+    result: passed
+    reason:
+      text: Skills 自身以 auto_check 与 24 小时节流控制，checking/busy 防止重复任务；自动检查仅下载缓存，写入只从显式
+        confirm 的 sync
+        进入。src/smart_search/desktop_skills.py:154-170,195-223；src/smart_search/desktop_backend.py:590-597；tests/test_desktop_skills.py:129-155。
+      truncated: false
+  - id: A4
+    source: specs/desktop-agent-skills/spec.md
+    text: Unified target list and honest status WHEN 打开页面，THEN Codex、Claude
+      Code、Cursor、Copilot、Gemini、OpenCode、Cline、Roo Code
+      及保留目标在同一列表，显示准确目标路径、Skill 内容状态、差异文件和历史目录提示；刷新保留用户选择。
+    result: passed
+    reason:
+      text: 17 个共享注册目标含 Codex、Claude、Cursor、Copilot、Gemini、OpenCode、Cline、Roo
+        及保留项，状态返回路径、差异与历史位置；两端页面保留选择。src/smart_search/skill_installer.py:33-58,380-436；desktop/windows/MainWindow.xaml.cs:1125-1164；desktop/macos/Sources/SmartSearchDesktop/AppModel.swift:833-836；desktop/macos/Sources/SmartSearchDesktop/ContentView.swift:1212-1246。
+      truncated: false
+  - id: A5
+    source: specs/desktop-agent-skills/spec.md
+    text: Invocation stays consistent WHEN 已有 Skill 写着旧 CLI 路径而当前独立 CLI 路径改变，THEN
+      更新根据当前已验证独立 CLI 重建本机调用说明，状态和安装比较同一份预期内容，更新后不会因该说明一直显示有差异；通用 CLI
+      比较识别本机说明，不误报纯注记差异。
+    result: passed
+    reason:
+      text: 本机独立 CLI 注记由 with_invocation
+        重建，比较时剥离历史本机注记以避免永久差异，而实际同步比较完整预期字节。src/smart_search/skill_installer.py:89-115,351-373；src/smart_search/desktop_skills.py:138-152,205-206；tests/test_desktop_skills.py:60-93。
+      truncated: false
+  - id: A6
+    source: specs/desktop-agent-skills/spec.md
+    text: Selected updates preserve user files WHEN 用户更新指定目标，THEN
+      只写所选目标的托管文件，先备份不同内容，保留用户额外文件和其他目标，返回备份位置；重复同步相同内容不重写、不重复备份。
+    result: passed
+    reason:
+      text: 仅逐个所选目标写托管文件；不同内容先整目录备份，额外文件不在 changes
+        中，重复相同内容返回空备份且不写入。src/smart_search/skill_installer.py:129-182；src/smart_search/desktop_skills.py:212-227；tests/test_desktop_skills.py:60-93,172-187。
+      truncated: false
+  - id: A7
+    source: specs/desktop-agent-skills/spec.md
+    text: Unsafe targets and write failures WHEN 目标含链接、越界路径或写入失败，THEN
+      拒绝不安全写入，旧内容保持可恢复，显示失败和备份位置；并发环境安装、CLI 更新与 Skills 同步不能交叉写入。
+    result: passed
+    reason:
+      text: 共享写入先拒绝 symlink 与 Windows reparse point（含 Python 3.10/3.11 junction），使用跨进程
+        file_lock，并在失败时恢复已替换文件且保留备份。src/smart_search/skill_installer.py:118-181；src/smart_search/state_files.py:14-53；tests/test_desktop_skills.py:211-225。Runtime
+        绑定的完整 pytest 已通过真实 junction 回归。
+      truncated: false
+  - id: A8
+    source: specs/desktop-agent-skills/spec.md
+    text: Clear native pages WHEN 用户使用任一平台或语言，THEN 可以区分检查最新 Skills、更新所选 Skills 和共用
+      CLI 环境准备，看到结果、备份路径与重新加载说明；无收费搜索被自动触发。
+    result: passed
+    reason:
+      text: Windows/macOS 均提供“更新 Skills”专页、正式版检查、选择后确认同步、备份结果、重载说明和独立 CLI 区域；操作只调用
+        Skills/环境
+        RPC，不自动触发搜索。desktop/windows/MainWindow.xaml.cs:546-589,1114-1185；desktop/macos/Sources/SmartSearchDesktop/ContentView.swift:1172-1246；desktop/macos/Sources/SmartSearchDesktop/AppModel.swift:588-601。
+      truncated: false
+  - id: A9
+    source: specs/desktop-agent-skills/spec.md
+    text: Regression and evidence boundaries WHEN 提交候选实现，THEN
+      隔离目录与协议回归、双语资源检查、Windows 构建通过；App/CLI 原有搜索、配置与环境功能保持兼容。GUI 手测、macOS
+      实机、正式安装、发布和真实 AI 调用分别标记，不能由静态检查代替。
+    result: passed
+    reason:
+      text: 当前 candidate/worktree 绑定的 Runtime 回执均 passed：完整 pytest（含真实
+        junction）、Skills 镜像一致性、diff --check、Windows x64 原生与冻结后端构建、C# 原生 RPC
+        生命周期；回执绑定 candidateId、scope A1–A9
+        和本工作区。.desktop-artifacts/skills-verifier-dispatch-2.json:1；.comet/runtime/native/changes/desktop-agent-skills-update/logs/checks/cc58117e-3d09-41da-8742-0f9b52a457ef-windows-build.log:86。
+      truncated: false
+builder_handoff:
+  candidate_id: 49d1539d-ee05-4428-b4ae-d47f87bea274
+  identity_provider: skill-coordinated
+  builder_execution_ref: skill-coordinated:builder:9ad33625-414c-46e5-8839-1c6bbf684e90
+  iteration: 2
+  summary:
+    text: 保留完整Skills更新实现；修复独立复核确认的A7：共享路径守卫改用lstat的Windows
+      reparse属性，兼容Python3.10/3.11；新增真实junction测试并移除新Pathlib接口来复现旧版API，确认拒绝写入。162项定向回归通过，1项真实symlink权限跳过；真实junction测试通过。前轮9项完整独立结论未返回，不标为通过。
+    truncated: false
+  addressed_acceptance_ids:
+    - A1
+    - A2
+    - A3
+    - A4
+    - A5
+    - A6
+    - A7
+    - A8
+    - A9
+  checks:
+    - name:
+        text: targeted regression and real Windows junction
+        truncated: false
+      result: passed
+      note:
+        text: 162 passed, 1 symlink privilege skip. Real junction refused without
+          Path.is_junction; existing outside files unchanged.
+        truncated: false
+    - name:
+        text: prior full Runtime suite/build/protocol
+        truncated: false
+      result: passed
+      note:
+        text: Previous candidate 914 passed,2 skips and Windows build/C#RPC passed.
+          Final rebuild and regression requested for repaired candidate.
+        truncated: false
+  checks_truncated: false
+  known_limits:
+    - text: GUI manual testing belongs to user; no GUI automation.
+      truncated: false
+    - text: No macOS/ARM64 native build or device verification on Windows x64.
+      truncated: false
+    - text: No release/commit/push/official App replacement or real personal Skill
+        writes.
+      truncated: false
+  known_limits_truncated: false
+  review: null
+  submitted_at: 2026-09-20T18:52:51.197Z
+blockers: []
+verification:
+  candidate_id: 49d1539d-ee05-4428-b4ae-d47f87bea274
+  identity_provider: skill-coordinated
+  verifier_execution_ref: skill-coordinated:verifier:f4372411-b035-4aba-bbaa-44faf4be9a6f
+  iteration: 2
+  attempt: 1
+  assurance: skill-coordinated
+  verdict: pass
+  checks:
+    - id: python-regression
+      name:
+        text: Python full regression with real Windows junction
+        truncated: false
+      argv_display:
+        - text: -m
+          truncated: false
+        - text: pytest
+          truncated: false
+        - text: -q
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 41793
+    - id: skills-parity
+      name:
+        text: Public and packaged Skill parity
+        truncated: false
+      argv_display:
+        - text: npm/scripts/check-skill-parity.js
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 53
+    - id: diff-check
+      name:
+        text: Patch whitespace
+        truncated: false
+      argv_display:
+        - text: diff
+          truncated: false
+        - text: --check
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 78
+    - id: windows-build
+      name:
+        text: Windows x64 native and packaged backend build
+        truncated: false
+      argv_display:
+        - text: -NoProfile
+          truncated: false
+        - text: -File
+          truncated: false
+        - text: desktop/scripts/Build-Windows.ps1
+          truncated: false
+        - text: -PythonPath
+          truncated: false
+        - text: .venv/Scripts/python.exe
+          truncated: false
+        - text: -Architecture
+          truncated: false
+        - text: x64
+          truncated: false
+        - text: -InstallerMode
+          truncated: false
+        - text: Skip
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 50977
+    - id: native-rpc
+      name:
+        text: Native C# backend lifecycle protocol
+        truncated: false
+      argv_display:
+        - text: run
+          truncated: false
+        - text: --project
+          truncated: false
+        - text: desktop/tests/BackendLifecycleCheck
+          truncated: false
+        - text: --
+          truncated: false
+        - text: D:\Dev\20_个人项目\智能搜索\smartsearch-desktop-agent-skills-update\.venv\Scripts\python.exe
+          truncated: false
+        - text: D:\Dev\20_个人项目\智能搜索\smartsearch-desktop-agent-skills-update\.desktop-artifacts\skills-lifecycle-config
+          truncated: false
+      argv_truncated: false
+      cwd_ref: .
+      status: passed
+      exit_code: 0
+      duration_ms: 3003
+  summary:
+    text: 独立只读核验完成：9/9 通过。未重跑已有全量检查，未改文件、未提交 Runtime。
+    truncated: false
+  risks:
+    - text: 未执行用户负责的 GUI 手测、macOS/ARM64 实机、正式安装/发布或真实 Agent 调用；这些限制已在 Builder handoff
+        与 Spec A9 中明确标记，不能由本次 Windows 静态/构建证据替代。
+      truncated: false
+  risks_truncated: false
+  completed_at: 2026-09-20T19:08:24.579Z
+history:
+  - goal_cycle: 1
+    iteration: 1
+    attempt: 1
+    outcome: execution-error
+    unresolved_ids: []
+    summary:
+      text: 独立只读Verifier运行超过项目单轮10分钟核查阈值；已报告A7旧Python
+        junction漏洞，但多次收束请求后未返回完整9项结果，主代理中断该执行并保留现有证据。主代理已在隔离目录以真实Windows
+        junction复现。先修复已确认缺陷，再使用新候选重新验收，不把本轮当通过。
+      truncated: false
+    completed_at: 2026-09-20T18:50:54.793Z
+  - goal_cycle: 1
+    iteration: 1
+    attempt: 1
+    outcome: recovery
+    unresolved_ids: []
+    summary:
+      text: 复核已发现并实际复现旧Python的Windows
+        junction写入绕过；保持已确认需求，回Build修复共享安全写入并增加真实junction回归。
+      truncated: false
+    completed_at: 2026-09-20T18:51:03.872Z
+  - goal_cycle: 1
+    iteration: 2
+    attempt: 1
+    outcome: pass
+    unresolved_ids: []
+    summary:
+      text: 独立只读核验完成：9/9 通过。未重跑已有全量检查，未改文件、未提交 Runtime。
+      truncated: false
+    completed_at: 2026-09-20T19:08:24.579Z
+history_overflow:
+  dropped_entries: 0
+  first_dropped_at: null
+  last_dropped_at: null
+  outcome_counts:
+    pass: 0
+    fail: 0
+    blocked: 0
+    execution-error: 0
+    recovery: 0
+verification_result: pass
+verification_report: verification.md
+archived: true
+created_at: 2026-09-20T17:55:16.415Z
