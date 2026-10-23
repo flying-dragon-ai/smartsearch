@@ -114,8 +114,10 @@ def _http_json(method: str, url: str, api_key: str, payload: dict[str, Any] | No
             "Content-Type": "application/json",
         },
     )
+    # 私域适配器默认是本机/局域网服务；显式绕过系统与环境代理，避免 127.0.0.1 被代理拦截。
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with opener.open(request, timeout=timeout) as response:
             raw = response.read().decode("utf-8")
             return response.status, json.loads(raw) if raw else {}
     except urllib.error.HTTPError as exc:
@@ -165,7 +167,7 @@ def search(platform: str, query: str, count: int = 8, fixture: bool = False) -> 
             endpoint,
             settings["key"],
             {"query": query, "count": count, "platform": platform},
-            20,
+			45,
         )
     except PrivateSearchError as exc:
         return _fail(provider, query, exc.code, exc.message)
@@ -205,7 +207,7 @@ def channel_status(platform: str) -> dict[str, Any]:
         return base
     health = settings["url"].rstrip("/") + "/health"
     try:
-        _http_json("GET", health, settings["key"], None, 5)
+        _http_json("GET", health, settings["key"], None, 10)
     except PrivateSearchError as exc:
         return {**base, "configured": True, "state": "error", "probe": "health", "error_type": exc.code, "error": exc.message}
     return {**base, "configured": True, "state": "closed", "probe": "health", "error_type": "", "error": ""}

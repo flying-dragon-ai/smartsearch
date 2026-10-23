@@ -267,7 +267,20 @@ Separately. The App checks under **Settings & about → App Updates** and downlo
 
 ## 私域搜索
 
-`xhs-search` / `wechat-search` 只检索，不发帖、不点赞、不关注。密钥只放配置：`XHS_API_URL`、`XHS_API_KEY`、`WECHAT_API_URL`、`WECHAT_API_KEY`。未配置返回 `error.code=auth_required`。`--fixture` 返回本地样例。真源是 `POST {baseUrl}/search`。`MODE=browser` 是实验项，尚未实现。
+`xhs-search` / `wechat-search` 只检索，不发帖、不点赞、不关注。密钥只放配置：`XHS_API_URL`、`XHS_API_KEY`、`WECHAT_API_URL`、`WECHAT_API_KEY`。未配置返回 `error.code=auth_required`。`--fixture` 返回本地样例。真源契约：`POST {baseUrl}/search`，body `{"query","count","platform"}`，Header `Authorization: Bearer <key>`；`GET {baseUrl}/health` 探活。`MODE=browser` 是实验项，尚未实现。
+
+### 小红书真源（本机 xiaohongshu-mcp 适配器，已打通）
+
+```cmd
+start_xhs_adapter.cmd                       幂等拉起 xiaohongshu-mcp(:18060) + 适配器(:18061)
+start http://127.0.0.1:18061\login          浏览器扫码登录（cookies 存 xhs-pipeline\xiaohongshu-mcp\cookies.json）
+smart-search config set XHS_API_URL http://127.0.0.1:18061
+smart-search config set XHS_API_KEY local-xhs
+smart-search config set XHS_MODE live
+smart-search xhs-search "露营装备" --format json
+```
+
+链路：`xhs-search → POST :18061/search → /api/v1/feeds/search（浏览器会话）`。适配器带 60s 关键词缓存，代理不拦截本机回环。微信公众号数据源未定，接入方式相同。
 
 ## Acknowledgements
 
